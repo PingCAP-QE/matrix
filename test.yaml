@@ -1,0 +1,35 @@
+configs:
+  - tag: tikv
+    serializer: yaml
+    target: "tikv.yaml"
+    value:
+      sugar_simple_or: [1, 2, 3] # type will be inferred from values, same type assumed.
+      string_opt:
+        - "a"
+        - "b"
+        - value: "c"
+          when: ["sugar_simple_or", "==", 1]
+      b:
+        type: int
+        value:
+          range: [0, 10]
+      c:
+        type: bool
+      d:
+        # todo: list
+        type: list
+      e:
+        value:
+          type: bool
+        when: c == true
+      f:
+        type: time
+        value:
+          range: [0s, 1800s]
+      s:
+        type: struct
+        value:
+          nested_a:
+            type: bool
+          nested_b:
+            type: int
