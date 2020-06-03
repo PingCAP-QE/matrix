@@ -1,35 +1,166 @@
 configs:
   - tag: tikv
-    serializer: yaml
-    target: "tikv.yaml"
+    serializer: toml
+    target: "tikv.toml"
     value:
-      sugar_simple_or: [1, 2, 3] # type will be inferred from values, same type assumed.
-      string_opt:
-        - "a"
-        - "b"
-        - value: "c"
-          when: ["sugar_simple_or", "==", 1]
-      b:
+      split-table: bool
+      mem-quota-query:
         type: int
-        value:
-          range: [0, 10]
-      c:
-        type: bool
-      d:
-        # todo: list
-        type: list
-      e:
-        value:
-          type: bool
-        when: c == true
-      f:
+        range: [1073741824, 1073741824]
+      tmp-storage-quota: int
+      oom-action: ["log", "cancel"]
+      enable-streaming: bool
+      lower-case-table-names: 2
+      lease:
         type: time
-        value:
-          range: [0s, 1800s]
-      s:
+        range: [45s, 45s]
+      compatible-kill-query: bool
+      check-mb4-value-in-utf8: bool
+      treat-old-version-utf8-as-utf8mb4: bool
+      alter-primary-key: bool
+      server-version: string
+      repair-mode: bool
+      repair-table-list:
+        type: list
+        when: ["repair-table-list", "==", true]
+      new_collations_enabled_on_first_bootstrap: bool
+      max-server-connections: uint
+      max-index-length:
+        type: int
+        range: [3072, 3072 * 4]
+        when: ["tidb_version()", ">=", "v3.0.11"]
+      log:
+        format: ["json", "text", "console"]
+        enable-timestamp: bool
+        enable-slow-log: bool
+        # slow-query-file: "tidb-slow.log"
+        slow-threshold:
+          type: time
+          range: [10ms, 1s]
+        expensive-threshold:
+          type: int
+          range: [10000, 10000]
+        query-log-max-len:
+          type: int
+          range: [4096, 4096]
+        file:
+          type: struct
+          value:
+            # filename: ""
+            max-size:
+              type: size
+              range: [300MB, 4GB]
+            max-days: uint
+            max-backups: uint
+            log-rotate: bool
+      security:
+        # ssl-ca: ""
+        # ssl-cert: ""
+        # ssl-key: ""
+        # cluster-ssl-ca: ""
+        # cluster-ssl-cert: ""
+        # cluster-ssl-key: ""
+        skip-grant-table: bool
+      performance:
+        max-procs:
+          type: int
+          range: [0, ncpu()]
+        max-memory:
+          type: int
+          range: [0, 0]
+          when: prepared-plan-cache.enabled
+        stmt-count-limit:
+          type: int
+          range: [5000, 5000]
+        txn-total-size-limit:
+          - type: int
+            range: [104857600, 104857600]
+            when: binlog.enable
+          - type: int
+            range: [10737418240,10737418240]
+            when: !binlog.enable
+        tcp-keep-alive: bool
+        cross-join: bool
+        stats-lease:
+          type: time
+          range: [0, 10s]
+        run-auto-analyze: bool
+        feedback-probability:
+          type: float
+          range: [0, 0.2]
+        query-feedback-limit: 1024
+        pseudo-estimate-ratio:
+          type: float
+          range: [0, 1]
+        force-priority: ["NO_PRIORITY", "LOW_PRIORITY", "HIGH_PRIORITY", "DELAYED"]
+      prepared-plan-cache:
+        enabled: bool
+        capicity: uint
+        memory-guard-ratio:
+          type: float
+          range: [0, 1]
+      tikv-client:
+        grpc-connection-count: 16
+        grpc-keepalive-time: 10
+        grpc-keepalive-timeout: 3
+        commit-timeout: 41s
+        max-txn-time-use: 590
+        max-batch-size: 128
+        max-batch-wait-time: 0
+        batch-wait-size: 8
+        overload-threshold:
+          type: int
+          value: 200
+          when: ["tikv-client.max-batch-size", ">=", 0]
+        copr-cache:
+          type: struct
+          when: ["version", ">=", "4.0.0"]
+          value:
+            enable: bool
+            capacity-mb:
+              type: int
+              range: [1000, 1000]
+            admission-max-result-mb:
+              type: int
+              range: [10, 10]
+            admission-min-process-ms:
+              type: int
+              range: [5,5]
+      txn-local-latches:
+        enable: bool
+        capacity:
+          type: int
+          range: [2048000, 2048000]
+      binlog:
+        enable: bool
+        write-timeout:
+          type: time
+          range: [15s, 15s]
+        ignore-error: bool
+        # binlog-socket: ""
+        strategy: ["hash", "range"]
+      status:
+        report-status: bool
+        record-db-qps: bool
+      stmt-summary:
         type: struct
+        when: ["version", ">=", "v3.0.4"]
         value:
-          nested_a:
-            type: bool
-          nested_b:
+          max-stmt-count:
             type: int
+            range: [100, 100]
+          max-sql-length:
+            type: int
+            range: [4096, 4096]
+      pessimistic-txn:
+        enable: bool
+        max-retry-count:
+          type: int
+          range: [256, 256]
+      experimental:
+        type: struct
+        when: ["version", ">=", "v3.1.0"]
+        value:
+          allow-auto-random: bool
+
+

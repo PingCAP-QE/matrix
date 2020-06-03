@@ -37,17 +37,16 @@ The semantic of field `value` is serializer-dependent
 config := <key>: <value>
         | <key>: {value: <value>[, when: <condition>]}
 
-condition := <key> <op> <cond_operand>
-op := ==
-    | !=
-    | in
-    | not in
+condition := [<key>, <op>, <literal>]
+op := == | != | > | < | >= | <=
 
-value := <literal>
-       | {type: <literal_type>[, value: <literal>]}
-       | {type: <numeric_and_time_type>[, range: [start, end]]}
-       | {type: <struct_type>, value: {[<key>: <value>]*} | [<value>*]}
+value := <literal_type> # random generated value with no constraints, e.g. [u]int, bool, string
+       | <literal>
        | <list_of_choices>
+       | <full_value_decl>
+       | <struct_map> # struct_map as {...} is a shortcut of {type: sturct, value: ...}
+
+full_value_decl := {type: <type>[, arguments]}
 
 list_of_choices := []
                  | [<value>] :: <list_of_choices>
@@ -60,8 +59,9 @@ list_of_choices := []
    2. bool
    3. int
    4. float
-   5. time
+   5. time (`s`/`m`/`h`)
+   6. size (`B`/`KB`/`MB`/`...`)
 2. Struct
-todo: List for `repair-table-list`
+3. todo: List for `repair-table-list`
 
 See `test.yaml` for a not-yet-complete example.
