@@ -8,7 +8,7 @@ GOBUILD=$(GO) build
 default: all
 
 all:
-	$(GOBUILD) $(GOMOD) -o bin/matrix main/main.go
+	$(GOBUILD) $(GOMOD) -o bin/matrix src/main.go
 
 fmt:
 	go fmt ./...

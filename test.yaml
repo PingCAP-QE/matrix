@@ -1,7 +1,7 @@
 configs:
-  - tag: tikv
+  - tag: tidb
     serializer: toml
-    target: "tikv.toml"
+    target: "tidb.toml"
     value:
       split-table: bool
       mem-quota-query:
