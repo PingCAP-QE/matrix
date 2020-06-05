@@ -14,7 +14,7 @@ Matrix use yaml to describe the configurations need to be fuzzed.
 Note 3. could also be used for dynamic configuring (change config during runtime),
 which will not be considered now.
 
-## Config of Matrix
+## Configs of Matrix
 The config file of Matrix tool is a yaml file, formatted as followed:
 ```yaml
 config:
