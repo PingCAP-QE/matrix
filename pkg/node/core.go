@@ -5,8 +5,6 @@ import (
 	"chaos-mesh/matrix/pkg/serializer"
 )
 
-type AbstractConfig struct {
-	Tag string
-	serializer.Config
-	Hollow data.HollowInterface
+type ConfigGroup struct {
+	Configs map[serializer.Config]data.ConcreteInterface
 }

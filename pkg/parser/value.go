@@ -1,11 +1,10 @@
 package parser
 
 import (
+	"chaos-mesh/matrix/pkg/node/data"
 	"errors"
-
-	"chaos-mesh/matrix/pkg/node"
 )
 
-func parseValue(_rawValue interface{}, _out *node.Hollow) error {
+func parseValue(_rawValue interface{}, _out *data.HollowInterface) error {
 	return errors.New("not implemented")
 }

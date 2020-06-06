@@ -1,6 +1,8 @@
 package context
 
-import "chaos-mesh/matrix/pkg/node"
+import (
+	"chaos-mesh/matrix/pkg/node"
+)
 
 type MatrixContext struct {
 	Configs map[string]node.AbstractConfig
