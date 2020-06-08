@@ -9,6 +9,8 @@ import (
 	"chaos-mesh/matrix/pkg/utils"
 )
 
+const ExprNotSupportedMessage = "expr not supported"
+
 func parseTree(rawValue interface{}) (interface{}, error) {
 	switch rawValue.(type) {
 	case map[string]interface{}:
@@ -76,16 +78,18 @@ func parseFloat(rawFloat float64) interface{} {
 	if rawFloat == float64(intValue) {
 		return data.NewHollowInt(intValue, intValue)
 	} else {
-		// todo: is a float
-		log.L().Warn(fmt.Sprintf("float value %f handled as HollowInt\n", rawFloat))
-		return data.NewHollowInt(0, utils.MaxInt)
+		return data.NewHollowFloat(rawFloat, rawFloat)
 	}
 }
 
 func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
 	switch rawHollow["type"] {
+	case data.TypeUint:
+		return nil, errors.New("type `uint` is only used for simple type syntax")
 	case data.TypeInt:
 		return parseHollowInt(rawHollow)
+	case data.TypeFloat:
+		return parseHollowFloat(rawHollow)
 	}
 	return nil, errors.New(fmt.Sprintf("parseHollowValue for type %s not implemented", rawHollow["type"]))
 }
@@ -97,15 +101,24 @@ func parseHollowInt(raw map[string]interface{}) (interface{}, error) {
 	if intRange, ok := raw["range"]; ok {
 		hollowInt.Range, err = parseIntRange(intRange)
 		if err != nil {
-			if err.Error() != ExprNotSupportedMessage {
-				return nil, err
-			}
+			return nil, err
 		}
 	}
 	return hollowInt, nil
 }
 
-var ExprNotSupportedMessage = "expr not supported"
+func parseHollowFloat(raw map[string]interface{}) (interface{}, error) {
+	var hollowFloat data.HollowFloat
+	var err error
+
+	if floatRange, ok := raw["range"]; ok {
+		hollowFloat.Range, err = parseFloatRange(floatRange)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return hollowFloat, nil
+}
 
 func parseIntRange(raw interface{}) ([]int, error) {
 	rangeList := raw.([]interface{})
@@ -115,10 +128,25 @@ func parseIntRange(raw interface{}) ([]int, error) {
 		case float64:
 			dur[i] = int(v.(float64))
 		case string:
-			// todo: parse expression
 			return nil, errors.New(ExprNotSupportedMessage)
 		default:
 			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as int", v))
+		}
+	}
+	return dur, nil
+}
+
+func parseFloatRange(raw interface{}) ([]float64, error) {
+	rangeList := raw.([]interface{})
+	dur := make([]float64, len(rangeList))
+	for i, v := range rangeList {
+		switch v.(type) {
+		case float64:
+			dur[i] = v.(float64)
+		case string:
+			return nil, errors.New(ExprNotSupportedMessage)
+		default:
+			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as float", v))
 		}
 	}
 	return dur, nil
