@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/ghodss/yaml"
@@ -38,11 +39,19 @@ func main() {
 	ctx, err = parser.ParseFile(body)
 
 	if err != nil {
-		panic("file not valid, detail error message is supposed to be shown above")
+		panic(fmt.Sprintf("file not valid: %s", err.Error()))
+	} else {
+		// used for debugging
+		for k, conf := range ctx.Configs {
+			fmt.Printf("%s: %s\n", k, conf.Hollow)
+		}
 	}
 
 	values := ctx.Gen()
 	for config, concrete := range values.Configs {
-		config.Serializer.Dump(concrete, config.Target)
+		err = config.Serializer.Dump(concrete, config.Target)
+		if err != nil {
+			fmt.Printf("Error %s when dumping {}", err.Error())
+		}
 	}
 }

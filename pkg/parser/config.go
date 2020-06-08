@@ -11,6 +11,8 @@ import (
 func ParseFile(rawData node.MatrixConfigFile) (*context.MatrixContext, error) {
 	var ctx context.MatrixContext
 
+	ctx.Configs = make(map[string]node.AbstractConfig)
+
 	for _, config := range rawData.Configs {
 		conf, err := ParseConfig(config)
 		if err != nil {
@@ -33,13 +35,19 @@ func ParseConfig(rawConfig node.RawConfig) (*node.AbstractConfig, error) {
 	if err = parseSerializerConfig(rawConfig, &conf.Config); err != nil {
 		return nil, err
 	}
-	if err = parseValue(rawConfig.Value, &conf.Hollow); err != nil {
+	if conf.Hollow, err = parseValue(rawConfig.Value); err != nil {
 		return nil, err
 	}
 
 	return &conf, nil
 }
 
-func parseSerializerConfig(_rawConfig node.RawConfig, _out *serializer.Config) error {
-	return errors.New("not implemented")
+func parseSerializerConfig(rawConfig node.RawConfig, out *serializer.Config) error {
+	var err error
+	out.Serializer, err = serializer.ParseSerializerName(rawConfig.Serializer)
+	if err != nil {
+		return err
+	}
+	out.Target = rawConfig.Target
+	return nil
 }

@@ -10,5 +10,5 @@ type MatrixContext struct {
 
 // This is to generate real value from an abstract tree
 func (MatrixContext) Gen() node.ConfigGroup {
-	panic("not implemented")
+	panic("Gen not implemented")
 }

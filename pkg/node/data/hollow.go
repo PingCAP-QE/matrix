@@ -12,7 +12,9 @@ type HollowInt struct{}
 
 func (h HollowInt) HollowType() string { return TypeInt }
 
-type HollowMap struct{}
+type HollowMap struct {
+	Map map[string]interface{}
+}
 
 func (h HollowMap) HollowType() string       { return TypeMap }
 func (h HollowMap) HollowValue() interface{} { panic("not implemented") }
