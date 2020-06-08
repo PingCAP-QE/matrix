@@ -35,7 +35,7 @@ func ParseConfig(rawConfig node.RawConfig) (*node.AbstractConfig, error) {
 	if err = parseSerializerConfig(rawConfig, &conf.Config); err != nil {
 		return nil, err
 	}
-	if conf.Hollow, err = parseValue(rawConfig.Value); err != nil {
+	if conf.Hollow, err = parseTree(rawConfig.Value); err != nil {
 		return nil, err
 	}
 
