@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+
 	"github.com/pingcap/log"
 
 	"chaos-mesh/matrix/pkg/node/data"
@@ -16,7 +17,7 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 	case map[string]interface{}:
 		return parseMap(rawValue.(map[string]interface{}))
 	case []interface{}:
-		return parseList(rawValue.([]interface{}))
+		return parseChoice(rawValue.([]interface{}))
 	case string:
 		return parseString(rawValue.(string))
 	case float64:
@@ -51,10 +52,21 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 	return hollowMap, nil
 }
 
-func parseList(rawList []interface{}) (interface{}, error) {
-	// List is choices
-	// HollowList will be handled elsewhere
-	return nil, errors.New("`parseList` not implemented")
+func parseChoice(rawList []interface{}) (interface{}, error) {
+	var hollowChoice data.HollowChoice
+	hollowChoice.List = make([]data.HollowBranch, len(rawList))
+	for i, k := range rawList {
+		hollowBranch, err := parseBranch(k)
+		if err != nil {
+			return nil, err
+		}
+		hollowChoice.List[i] = *hollowBranch
+	}
+	return hollowChoice, nil
+}
+
+func parseBranch(rawBranch interface{}) (*data.HollowBranch, error) {
+	return nil, errors.New("`parseBranch` not implemented")
 }
 
 func parseString(rawString string) (interface{}, error) {

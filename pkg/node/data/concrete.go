@@ -6,6 +6,5 @@ type ConcreteInterface interface {
 	ConcreteType() string
 }
 
-
 type ConcreteInt struct {
 }
