@@ -41,7 +41,7 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 		if err == nil {
 			return hollowValue, nil
 		} else {
-			log.L().Warn(fmt.Sprintf("HollowType %s parse failed with message \"%s\", fall back to HollowMap", hollowType, err.Error()))
+			log.L().Warn(fmt.Sprintf("type %s parse failed with message \"%s\", fall back to HollowMap", hollowType, err.Error()))
 		}
 	}
 	var hollowMap data.HollowMap
@@ -59,44 +59,15 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 
 func parseChoice(rawList []interface{}) (interface{}, error) {
 	var hollowChoice data.HollowChoice
-	hollowChoice.List = make([]data.HollowBranch, len(rawList))
+	hollowChoice.List = make([]interface{}, len(rawList))
 	for i, k := range rawList {
-		hollowBranch, err := parseBranch(k)
+		hollowBranch, err := parseTree(k)
 		if err != nil {
 			return nil, err
 		}
-		hollowChoice.List[i] = *hollowBranch
+		hollowChoice.List[i] = hollowBranch
 	}
 	return hollowChoice, nil
-}
-
-func parseBranch(rawBranch interface{}) (*data.HollowBranch, error) {
-	var branch data.HollowBranch
-	var err error
-
-	if mapBranch, ok := rawBranch.(map[string]interface{}); ok {
-		if len(mapBranch) == 2 {
-			if branchValue, ok := mapBranch["value"]; ok {
-				if _, ok := mapBranch["when"]; ok {
-					branch.Value, err = parseTree(branchValue)
-					if err != nil {
-						return nil, err
-					}
-					branch.When, err = parseCondition(rawBranch.(map[string]interface{}))
-					if err != nil {
-						return nil, err
-					}
-					return &branch, nil
-				}
-			}
-		}
-	}
-
-	branch.Value, err = parseTree(rawBranch)
-	if err != nil {
-		return nil, err
-	}
-	return &branch, nil
 }
 
 func parseCondition(rawMap map[string]interface{}) (*data.HollowCondition, error) {

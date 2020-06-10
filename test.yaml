@@ -23,6 +23,7 @@ configs:
       repair-table-list:
         type: list
         when: ["repair-table-list", "==", true]
+        value: []
       new_collations_enabled_on_first_bootstrap: bool
       max-server-connections: uint
       max-index-length:

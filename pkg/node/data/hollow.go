@@ -1,41 +1,93 @@
 package data
 
 type HollowInterface interface {
-	HollowType() string
+	GetType() string
+	GetAllCondition() ([]HollowCondition, bool)
 }
 
 type HollowCondition struct{ Raw []interface{} }
 
-type HollowBranch struct {
-	Value interface{}
-	When  *HollowCondition
-}
+type HollowBool struct{ Condition *HollowCondition }
 
-type HollowBool struct{}
-type HollowInt struct{ Range []int }
-type HollowFloat struct{ Range []float64 }
-type HollowString struct{ Value string }
-type HollowChoice struct{ List []HollowBranch }
-type HollowList struct{ List []interface{} }
-type HollowMap struct{ Map map[string]interface{} }
+type HollowInt struct {
+	Range     []int
+	Condition *HollowCondition
+}
+type HollowFloat struct {
+	Range     []float64
+	Condition *HollowCondition
+}
+type HollowString struct {
+	Value     string
+	Condition *HollowCondition
+}
+type HollowChoice struct {
+	List      []interface{}
+	Condition *HollowCondition
+}
+type HollowList struct {
+	List      []interface{}
+	Condition *HollowCondition
+}
+type HollowMap struct {
+	Map       map[string]interface{}
+	Condition *HollowCondition
+}
 
 var _ HollowInterface = (*HollowBool)(nil)
 var _ HollowInterface = (*HollowInt)(nil)
 var _ HollowInterface = (*HollowFloat)(nil)
 var _ HollowInterface = (*HollowString)(nil)
-var _ HollowInterface = (*HollowBranch)(nil)
 var _ HollowInterface = (*HollowChoice)(nil)
 var _ HollowInterface = (*HollowList)(nil)
 var _ HollowInterface = (*HollowMap)(nil)
 
-func (h HollowBool) HollowType() string   { return TypeBool }
-func (h HollowInt) HollowType() string    { return TypeInt }
-func (h HollowFloat) HollowType() string  { return TypeFloat }
-func (h HollowString) HollowType() string { return TypeString }
-func (h HollowBranch) HollowType() string { return TypeBranch }
-func (h HollowChoice) HollowType() string { return TypeChoice }
-func (h HollowList) HollowType() string   { return TypeList }
-func (h HollowMap) HollowType() string    { return TypeMap }
+func (h HollowBool) GetType() string   { return TypeBool }
+func (h HollowInt) GetType() string    { return TypeInt }
+func (h HollowFloat) GetType() string  { return TypeFloat }
+func (h HollowString) GetType() string { return TypeString }
+func (h HollowChoice) GetType() string { return TypeChoice }
+func (h HollowList) GetType() string   { return TypeList }
+func (h HollowMap) GetType() string    { return TypeMap }
+
+func returnCond(condition *HollowCondition) ([]HollowCondition, bool) {
+	if condition == nil {
+		return []HollowCondition{}, false
+	}
+	return []HollowCondition{*condition}, true
+}
+
+func returnListCond(condition *HollowCondition, list []interface{}) ([]HollowCondition, bool) {
+	condList, _ := returnCond(condition)
+	for _, v := range list {
+		childCond, _ := v.(HollowInterface).GetAllCondition()
+		for _, cond := range childCond {
+			condList = append(condList, cond)
+		}
+	}
+	return condList, len(condList) > 0
+}
+
+func (h HollowBool) GetAllCondition() ([]HollowCondition, bool)   { return returnCond(h.Condition) }
+func (h HollowInt) GetAllCondition() ([]HollowCondition, bool)    { return returnCond(h.Condition) }
+func (h HollowFloat) GetAllCondition() ([]HollowCondition, bool)  { return returnCond(h.Condition) }
+func (h HollowString) GetAllCondition() ([]HollowCondition, bool) { return returnCond(h.Condition) }
+func (h HollowChoice) GetAllCondition() ([]HollowCondition, bool) {
+	return returnListCond(h.Condition, h.List)
+}
+func (h HollowList) GetAllCondition() ([]HollowCondition, bool) {
+	return returnListCond(h.Condition, h.List)
+}
+func (h HollowMap) GetAllCondition() ([]HollowCondition, bool) {
+	condList, _ := returnCond(h.Condition)
+	for _, v := range h.Map {
+		childCond, _ := v.(HollowInterface).GetAllCondition()
+		for _, cond := range childCond {
+			condList = append(condList, cond)
+		}
+	}
+	return condList, len(condList) > 0
+}
 
 func NewHollowInt(start int, end int) HollowInt {
 	h := HollowInt{}

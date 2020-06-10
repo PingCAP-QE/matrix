@@ -7,7 +7,6 @@ const (
 	TypeFloat  = "float"
 	TypeString = "string"
 	TypeList   = "list"
-	TypeBranch = "branch"
 	TypeChoice = "choice"
 	TypeMap    = "map"
 	TypeStruct = "struct" // struct is an alias of map
