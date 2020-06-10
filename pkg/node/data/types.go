@@ -6,6 +6,8 @@ const (
 	TypeUint   = "uint" // uint is a shortcut for int starts from zero rather than a representation of uint type
 	TypeFloat  = "float"
 	TypeString = "string"
+	TypeSize   = "size"
+	TypeTime   = "time"
 	TypeList   = "list"
 	TypeChoice = "choice"
 	TypeMap    = "map"

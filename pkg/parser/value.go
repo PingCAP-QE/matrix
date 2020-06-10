@@ -3,6 +3,9 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"time"
+
+	"github.com/c2h5oh/datasize"
 
 	"github.com/pingcap/log"
 
@@ -77,6 +80,7 @@ func parseCondition(rawMap map[string]interface{}) (*data.HollowCondition, error
 	return nil, nil
 }
 
+// parseString convert string literals to
 func parseString(rawString string) (interface{}, error) {
 	switch rawString {
 	case data.TypeBool:
@@ -87,8 +91,12 @@ func parseString(rawString string) (interface{}, error) {
 		return data.NewHollowInt(0, utils.MaxInt), nil
 	case data.TypeString:
 		return data.HollowString{}, nil
+	case data.TypeTime:
+		return data.HollowTime{}, nil
+	case data.TypeSize:
+		return data.HollowSize{}, nil
 	default:
-		return data.HollowString{}, nil
+		return data.HollowString{Value: rawString}, nil
 	}
 }
 
@@ -114,6 +122,10 @@ func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
 		return parseHollowList(rawHollow)
 	case data.TypeMap, data.TypeStruct:
 		return parseHollowMap(rawHollow)
+	case data.TypeTime:
+		return parseHollowTime(rawHollow)
+	case data.TypeSize:
+		return parseHollowSize(rawHollow)
 	}
 	return nil, errors.New(fmt.Sprintf("parseHollowValue for type %s not implemented", rawHollow["type"]))
 }
@@ -144,6 +156,32 @@ func parseHollowFloat(raw map[string]interface{}) (interface{}, error) {
 	return hollowFloat, nil
 }
 
+func parseHollowTime(raw map[string]interface{}) (interface{}, error) {
+	var hollowTime data.HollowTime
+	var err error
+
+	if timeRange, ok := raw["range"]; ok {
+		hollowTime.Range, err = parseTimeRange(timeRange)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return hollowTime, nil
+}
+
+func parseHollowSize(raw map[string]interface{}) (interface{}, error) {
+	var hollowSize data.HollowSize
+	var err error
+
+	if timeRange, ok := raw["range"]; ok {
+		hollowSize.Range, err = parseSizeRange(timeRange)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return hollowSize, nil
+}
+
 func parseIntRange(raw interface{}) ([]int, error) {
 	rangeList := raw.([]interface{})
 	dur := make([]int, len(rangeList))
@@ -171,6 +209,42 @@ func parseFloatRange(raw interface{}) ([]float64, error) {
 			return nil, errors.New(ExprNotSupportedMessage)
 		default:
 			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as float", v))
+		}
+	}
+	return dur, nil
+}
+
+func parseTimeRange(raw interface{}) ([]time.Duration, error) {
+	var err error
+	rangeList := raw.([]interface{})
+	dur := make([]time.Duration, len(rangeList))
+	for i, v := range rangeList {
+		if timeStr, ok := v.(string); ok {
+			dur[i], err = time.ParseDuration(timeStr)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as time", v))
+		}
+	}
+	return dur, nil
+}
+
+func parseSizeRange(raw interface{}) ([]datasize.ByteSize, error) {
+	var err error
+	rangeList := raw.([]interface{})
+	dur := make([]datasize.ByteSize, len(rangeList))
+	for i, v := range rangeList {
+		if sizeStr, ok := v.(string); ok {
+			var size datasize.ByteSize
+			err = size.UnmarshalText([]byte(sizeStr))
+			if err != nil {
+				return nil, err
+			}
+			dur[i] = size
+		} else {
+			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as size", v))
 		}
 	}
 	return dur, nil

@@ -1,5 +1,11 @@
 package data
 
+import (
+	"time"
+
+	"github.com/c2h5oh/datasize"
+)
+
 type HollowInterface interface {
 	GetType() string
 	GetAllCondition() ([]HollowCondition, bool)
@@ -21,6 +27,14 @@ type HollowString struct {
 	Value     string
 	Condition *HollowCondition
 }
+type HollowTime struct {
+	Range     []time.Duration
+	Condition *HollowCondition
+}
+type HollowSize struct {
+	Range     []datasize.ByteSize
+	Condition *HollowCondition
+}
 type HollowChoice struct {
 	List      []interface{}
 	Condition *HollowCondition
@@ -38,6 +52,8 @@ var _ HollowInterface = (*HollowBool)(nil)
 var _ HollowInterface = (*HollowInt)(nil)
 var _ HollowInterface = (*HollowFloat)(nil)
 var _ HollowInterface = (*HollowString)(nil)
+var _ HollowInterface = (*HollowTime)(nil)
+var _ HollowInterface = (*HollowSize)(nil)
 var _ HollowInterface = (*HollowChoice)(nil)
 var _ HollowInterface = (*HollowList)(nil)
 var _ HollowInterface = (*HollowMap)(nil)
@@ -46,6 +62,8 @@ func (h HollowBool) GetType() string   { return TypeBool }
 func (h HollowInt) GetType() string    { return TypeInt }
 func (h HollowFloat) GetType() string  { return TypeFloat }
 func (h HollowString) GetType() string { return TypeString }
+func (h HollowTime) GetType() string   { return TypeTime }
+func (h HollowSize) GetType() string   { return TypeSize }
 func (h HollowChoice) GetType() string { return TypeChoice }
 func (h HollowList) GetType() string   { return TypeList }
 func (h HollowMap) GetType() string    { return TypeMap }
@@ -72,6 +90,8 @@ func (h HollowBool) GetAllCondition() ([]HollowCondition, bool)   { return retur
 func (h HollowInt) GetAllCondition() ([]HollowCondition, bool)    { return returnCond(h.Condition) }
 func (h HollowFloat) GetAllCondition() ([]HollowCondition, bool)  { return returnCond(h.Condition) }
 func (h HollowString) GetAllCondition() ([]HollowCondition, bool) { return returnCond(h.Condition) }
+func (h HollowTime) GetAllCondition() ([]HollowCondition, bool)   { return returnCond(h.Condition) }
+func (h HollowSize) GetAllCondition() ([]HollowCondition, bool)   { return returnCond(h.Condition) }
 func (h HollowChoice) GetAllCondition() ([]HollowCondition, bool) {
 	return returnListCond(h.Condition, h.List)
 }

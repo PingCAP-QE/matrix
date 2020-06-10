@@ -84,7 +84,7 @@ configs:
         cross-join: bool
         stats-lease:
           type: time
-          range: [0, 10s]
+          range: [0s, 10s]
         run-auto-analyze: bool
         feedback-probability:
           type: float
