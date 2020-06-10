@@ -3,6 +3,9 @@ package serializer
 import (
 	"errors"
 	"fmt"
+	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -29,5 +32,7 @@ func ParseSerializerName(name string) (Serializer, error) {
 type TomlSerializer struct{}
 
 func (s TomlSerializer) Dump(value interface{}, target string) error {
-	return nil
+	encoder := toml.NewEncoder(os.Stdout)
+	encoder.Indent = ""
+	return encoder.Encode(value)
 }

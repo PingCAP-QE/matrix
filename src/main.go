@@ -51,7 +51,7 @@ func main() {
 	for config, concrete := range values.Configs {
 		err = config.Serializer.Dump(concrete, config.Target)
 		if err != nil {
-			fmt.Printf("Error %s when dumping {}", err.Error())
+			fmt.Printf("Error %s when dumping %s", err.Error(), concrete)
 		}
 	}
 }

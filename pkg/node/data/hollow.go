@@ -17,24 +17,24 @@ type HollowCondition struct{ Raw []interface{} }
 type HollowBool struct{ Condition *HollowCondition }
 
 type HollowInt struct {
-	Range     []int
-	Condition *HollowCondition
+	RangeStart, RangeEnd int
+	Condition            *HollowCondition
 }
 type HollowFloat struct {
-	Range     []float64
-	Condition *HollowCondition
+	RangeStart, RangeEnd float64
+	Condition            *HollowCondition
 }
 type HollowString struct {
 	Value     string
 	Condition *HollowCondition
 }
 type HollowTime struct {
-	Range     []time.Duration
-	Condition *HollowCondition
+	RangeStart, RangeEnd time.Duration
+	Condition            *HollowCondition
 }
 type HollowSize struct {
-	Range     []datasize.ByteSize
-	Condition *HollowCondition
+	RangeStart, RangeEnd datasize.ByteSize
+	Condition            *HollowCondition
 }
 type HollowChoice struct {
 	List      []interface{}
@@ -119,19 +119,3 @@ func (h HollowSize) SetCondition(condition *HollowCondition)   { h.Condition = c
 func (h HollowChoice) SetCondition(condition *HollowCondition) { h.Condition = condition }
 func (h HollowList) SetCondition(condition *HollowCondition)   { h.Condition = condition }
 func (h HollowMap) SetCondition(condition *HollowCondition)    { h.Condition = condition }
-
-func NewHollowInt(start int, end int) HollowInt {
-	h := HollowInt{}
-	h.Range = make([]int, 2)
-	h.Range[0] = start
-	h.Range[1] = end
-	return h
-}
-
-func NewHollowFloat(start float64, end float64) HollowFloat {
-	h := HollowFloat{}
-	h.Range = make([]float64, 2)
-	h.Range[0] = start
-	h.Range[1] = end
-	return h
-}

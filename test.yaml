@@ -162,6 +162,8 @@ configs:
         type: struct
         when: ["version", ">=", "v3.1.0"]
         value:
-          allow-auto-random: bool
+          allow-auto-random:
+            type: bool
+            when: ["not", "alter-primary-key"]
 
 

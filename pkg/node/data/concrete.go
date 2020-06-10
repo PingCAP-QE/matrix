@@ -3,8 +3,10 @@ package data
 // ConcreteInterface value
 type ConcreteInterface interface {
 	ConcreteValue() interface{}
-	ConcreteType() string
 }
 
-type ConcreteInt struct {
-}
+type ConcreteInt struct{ Value int }
+
+func (c ConcreteInt) ConcreteValue() interface{} { return c.Value }
+
+var _ ConcreteInterface = (*ConcreteInt)(nil)

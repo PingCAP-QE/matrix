@@ -3,6 +3,7 @@ module chaos-mesh/matrix
 go 1.14
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/ghodss/yaml v1.0.0
 	github.com/pingcap/log v0.0.0-20200511115504-543df19646ad
