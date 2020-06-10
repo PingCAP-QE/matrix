@@ -32,6 +32,11 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 	var hollowValue interface{}
 	var err error
 	if hollowType, ok := rawMap["type"]; ok {
+		if _, ok := rawMap["when"]; ok {
+			// todo: handle when condition
+			_, _ = parseCondition(rawMap)
+			delete(rawMap, "when")
+		}
 		hollowValue, err = parseHollowValue(rawMap)
 		if err == nil {
 			return hollowValue, nil
@@ -96,7 +101,7 @@ func parseBranch(rawBranch interface{}) (*data.HollowBranch, error) {
 
 func parseCondition(rawMap map[string]interface{}) (*data.HollowCondition, error) {
 	if cond, ok := rawMap["when"]; ok {
-		log.L().Warn(fmt.Sprintf("ignoring constraint in choice: %s", cond))
+		log.L().Warn(fmt.Sprintf("ignoring constraint: %s", cond))
 	}
 	return nil, nil
 }
@@ -134,6 +139,10 @@ func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
 		return parseHollowInt(rawHollow)
 	case data.TypeFloat:
 		return parseHollowFloat(rawHollow)
+	case data.TypeList:
+		return parseHollowList(rawHollow)
+	case data.TypeMap, data.TypeStruct:
+		return parseHollowMap(rawHollow)
 	}
 	return nil, errors.New(fmt.Sprintf("parseHollowValue for type %s not implemented", rawHollow["type"]))
 }
@@ -194,4 +203,45 @@ func parseFloatRange(raw interface{}) ([]float64, error) {
 		}
 	}
 	return dur, nil
+}
+
+func parseHollowList(raw map[string]interface{}) (interface{}, error) {
+	if rawList, ok := raw["value"]; ok {
+		if rawList, ok := rawList.([]interface{}); ok {
+			var list data.HollowList
+			var err error
+			list.List = make([]interface{}, len(rawList))
+			for i, v := range rawList {
+				list.List[i], err = parseTree(v)
+				if err != nil {
+					return nil, err
+				}
+			}
+			return list, nil
+		} else {
+			return nil, errors.New(fmt.Sprintf("field `value` of type `list` is not if type `[]interface{}`: %s", rawList))
+		}
+	} else {
+		return nil, errors.New("type `list` does not contain field `value`")
+	}
+}
+func parseHollowMap(raw map[string]interface{}) (interface{}, error) {
+	if rawList, ok := raw["value"]; ok {
+		if rawMap, ok := rawList.(map[string]interface{}); ok {
+			var hollowMap data.HollowMap
+			var err error
+			hollowMap.Map = make(map[string]interface{}, len(rawMap))
+			for i, v := range rawMap {
+				hollowMap.Map[i], err = parseTree(v)
+				if err != nil {
+					return nil, err
+				}
+			}
+			return hollowMap, nil
+		} else {
+			return nil, errors.New(fmt.Sprintf("field `value` of type `map` is not if type `map[string]interface{}`: %s", rawMap))
+		}
+	} else {
+		return nil, errors.New("type `map` does not contain field `value`")
+	}
 }

@@ -78,7 +78,7 @@ configs:
             when: binlog.enable
           - type: int
             range: [10737418240,10737418240]
-            when: !binlog.enable
+            when: "!binlog.enable"
         tcp-keep-alive: bool
         cross-join: bool
         stats-lease:
