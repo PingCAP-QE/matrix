@@ -40,11 +40,6 @@ func main() {
 
 	if err != nil {
 		panic(fmt.Sprintf("file not valid: %s", err.Error()))
-	} else {
-		// used for debugging
-		for k, conf := range ctx.Configs {
-			fmt.Printf("%s: %s\n", k, conf.Hollow)
-		}
 	}
 
 	values := ctx.Gen()
