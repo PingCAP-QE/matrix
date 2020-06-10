@@ -9,6 +9,7 @@ import (
 type HollowInterface interface {
 	GetType() string
 	GetAllCondition() ([]HollowCondition, bool)
+	SetCondition(condition *HollowCondition)
 }
 
 type HollowCondition struct{ Raw []interface{} }
@@ -108,6 +109,16 @@ func (h HollowMap) GetAllCondition() ([]HollowCondition, bool) {
 	}
 	return condList, len(condList) > 0
 }
+
+func (h HollowBool) SetCondition(condition *HollowCondition)   { h.Condition = condition }
+func (h HollowInt) SetCondition(condition *HollowCondition)    { h.Condition = condition }
+func (h HollowFloat) SetCondition(condition *HollowCondition)  { h.Condition = condition }
+func (h HollowString) SetCondition(condition *HollowCondition) { h.Condition = condition }
+func (h HollowTime) SetCondition(condition *HollowCondition)   { h.Condition = condition }
+func (h HollowSize) SetCondition(condition *HollowCondition)   { h.Condition = condition }
+func (h HollowChoice) SetCondition(condition *HollowCondition) { h.Condition = condition }
+func (h HollowList) SetCondition(condition *HollowCondition)   { h.Condition = condition }
+func (h HollowMap) SetCondition(condition *HollowCondition)    { h.Condition = condition }
 
 func NewHollowInt(start int, end int) HollowInt {
 	h := HollowInt{}

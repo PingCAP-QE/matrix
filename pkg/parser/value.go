@@ -34,12 +34,28 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 	var err error
 	if _, ok := rawMap["type"]; ok {
-		if _, ok := rawMap["when"]; ok {
-			// todo: handle when condition
-			_, _ = parseCondition(rawMap)
+		var hollowValue interface{}
+		var rawCondition interface{}
+
+		if rawCondition, ok = rawMap["when"]; ok {
 			delete(rawMap, "when")
 		}
-		return parseHollowValue(rawMap)
+
+		hollowValue, err = parseHollowValue(rawMap)
+		if err != nil {
+			return nil, err
+		}
+
+		if rawCondition != nil {
+			var hollowCondition *data.HollowCondition
+			hollowCondition, err = parseCondition(rawCondition)
+			if err != nil {
+				return nil, err
+			}
+			hollowValue.(data.HollowInterface).SetCondition(hollowCondition)
+		}
+
+		return hollowValue, err
 	}
 	var hollowMap data.HollowMap
 	hollowMap.Map = make(map[string]interface{})
@@ -67,9 +83,12 @@ func parseChoice(rawList []interface{}) (interface{}, error) {
 	return hollowChoice, nil
 }
 
-func parseCondition(rawMap map[string]interface{}) (*data.HollowCondition, error) {
-	if cond, ok := rawMap["when"]; ok {
-		log.L().Warn(fmt.Sprintf("ignoring constraint: %s", cond))
+func parseCondition(rawCond interface{}) (*data.HollowCondition, error) {
+	switch rawCond.(type) {
+	case string:
+	case []interface{}:
+	default:
+		log.L().Warn(fmt.Sprintf("ignoring constraint: %s", rawCond))
 	}
 	return nil, nil
 }
