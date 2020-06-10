@@ -32,20 +32,14 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 }
 
 func parseMap(rawMap map[string]interface{}) (interface{}, error) {
-	var hollowValue interface{}
 	var err error
-	if hollowType, ok := rawMap["type"]; ok {
+	if _, ok := rawMap["type"]; ok {
 		if _, ok := rawMap["when"]; ok {
 			// todo: handle when condition
 			_, _ = parseCondition(rawMap)
 			delete(rawMap, "when")
 		}
-		hollowValue, err = parseHollowValue(rawMap)
-		if err == nil {
-			return hollowValue, nil
-		} else {
-			log.L().Warn(fmt.Sprintf("type %s parse failed with message \"%s\", fall back to HollowMap", hollowType, err.Error()))
-		}
+		return parseHollowValue(rawMap)
 	}
 	var hollowMap data.HollowMap
 	hollowMap.Map = make(map[string]interface{})
@@ -189,8 +183,6 @@ func parseIntRange(raw interface{}) ([]int, error) {
 		switch v.(type) {
 		case float64:
 			dur[i] = int(v.(float64))
-		case string:
-			return nil, errors.New(fmt.Sprintf("%s: %s", ExprNotSupportedMessage, v.(string)))
 		default:
 			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as int", v))
 		}
@@ -205,8 +197,6 @@ func parseFloatRange(raw interface{}) ([]float64, error) {
 		switch v.(type) {
 		case float64:
 			dur[i] = v.(float64)
-		case string:
-			return nil, errors.New(ExprNotSupportedMessage)
 		default:
 			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as float", v))
 		}

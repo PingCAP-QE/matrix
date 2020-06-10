@@ -28,7 +28,7 @@ configs:
       max-server-connections: uint
       max-index-length:
         type: int
-        range: [3072, 3072 * 4]
+        range: [3072, 12288]
         when: ["tidb_version()", ">=", "v3.0.11"]
       log:
         format: ["json", "text", "console"]
@@ -65,7 +65,7 @@ configs:
       performance:
         max-procs:
           type: int
-          range: [0, ncpu()]
+          range: [0, 4]
         max-memory:
           type: int
           range: [0, 0]
