@@ -23,7 +23,7 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 	case float64:
 		return parseFloat(rawValue.(float64)), nil
 	default:
-		log.L().Warn(fmt.Sprintf("%s not handled, return HollowInt\n", rawValue))
+		log.L().Warn(fmt.Sprintf("%s not handled, return HollowInt", rawValue))
 		return data.NewHollowInt(utils.MinInt, utils.MaxInt), nil
 	}
 }
@@ -36,7 +36,7 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 		if err == nil {
 			return hollowValue, nil
 		} else {
-			log.L().Warn(fmt.Sprintf("HollowType %s parse failed, fall back to HollowMap", hollowType))
+			log.L().Warn(fmt.Sprintf("HollowType %s parse failed with message \"%s\", fall back to HollowMap", hollowType, err.Error()))
 		}
 	}
 	var hollowMap data.HollowMap
@@ -66,7 +66,39 @@ func parseChoice(rawList []interface{}) (interface{}, error) {
 }
 
 func parseBranch(rawBranch interface{}) (*data.HollowBranch, error) {
-	return nil, errors.New("`parseBranch` not implemented")
+	var branch data.HollowBranch
+	var err error
+
+	if mapBranch, ok := rawBranch.(map[string]interface{}); ok {
+		if len(mapBranch) == 2 {
+			if branchValue, ok := mapBranch["value"]; ok {
+				if _, ok := mapBranch["when"]; ok {
+					branch.Value, err = parseTree(branchValue)
+					if err != nil {
+						return nil, err
+					}
+					branch.When, err = parseCondition(rawBranch.(map[string]interface{}))
+					if err != nil {
+						return nil, err
+					}
+					return &branch, nil
+				}
+			}
+		}
+	}
+
+	branch.Value, err = parseTree(rawBranch)
+	if err != nil {
+		return nil, err
+	}
+	return &branch, nil
+}
+
+func parseCondition(rawMap map[string]interface{}) (*data.HollowCondition, error) {
+	if cond, ok := rawMap["when"]; ok {
+		log.L().Warn(fmt.Sprintf("ignoring constraint in choice: %s", cond))
+	}
+	return nil, nil
 }
 
 func parseString(rawString string) (interface{}, error) {
@@ -140,7 +172,7 @@ func parseIntRange(raw interface{}) ([]int, error) {
 		case float64:
 			dur[i] = int(v.(float64))
 		case string:
-			return nil, errors.New(ExprNotSupportedMessage)
+			return nil, errors.New(fmt.Sprintf("%s: %s", ExprNotSupportedMessage, v.(string)))
 		default:
 			return nil, errors.New(fmt.Sprintf("%s cannot be parsed as int", v))
 		}

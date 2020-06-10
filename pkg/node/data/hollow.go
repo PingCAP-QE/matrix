@@ -4,9 +4,11 @@ type HollowInterface interface {
 	HollowType() string
 }
 
+type HollowCondition struct{ Raw []interface{} }
+
 type HollowBranch struct {
 	Value interface{}
-	When  interface{}
+	When  *HollowCondition
 }
 
 type HollowBool struct{}
