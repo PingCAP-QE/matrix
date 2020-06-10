@@ -2,6 +2,14 @@
 
 Matrix is a config fuzzer, i.e. generate a set of configurations for a program that need to be fuzzed.
 
+## One Line Usage
+```shell script
+$ make                   
+GO15VENDOREXPERIMENT="1" CGO_ENABLED=0 GOOS= GOARCH=amd64 GO111MODULE=on go build  -o bin/matrix src/main.go
+$ bin/matrix -c test.yaml
+<generated tidb toml config>
+```
+
 ## DSL
 
 Matrix use yaml to describe the configurations need to be fuzzed.
@@ -29,9 +37,6 @@ Each `config_template` is a set of configs that will be generated as one entity 
 | **serializer** | Serializer used to dump this config | `yaml` / `toml` / `...` |
 | **target** | Path of dumped config |
 | **value** | Specification of this config |
-
-The semantic of field `value` is serializer-dependent
- to support non-trivial config like SQL-based ones.
 
 ```
 config := <key>: <value>
