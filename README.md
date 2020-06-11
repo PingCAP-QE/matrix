@@ -2,27 +2,29 @@
 
 Matrix is a config fuzzer, i.e. generate a set of configurations for a program that need to be fuzzed.
 
-## One Line Usage
-```shell script
-$ make                   
-GO15VENDOREXPERIMENT="1" CGO_ENABLED=0 GOOS= GOARCH=amd64 GO111MODULE=on go build  -o bin/matrix src/main.go
-$ bin/matrix -c test.yaml
-<generated tidb toml config>
+## Quickstart
+```bash
+make
+bin/matrix -c examples/matrix-tidb.yaml # this will generate a TiDB config `tidb.yaml` in current folder
 ```
 
-## DSL
-
-Matrix use yaml to describe the configurations need to be fuzzed.
+Output folder can be configured with `-d <output folder>`
 
 ## Type of configs
-1. Domain specific config file, e.g. toml, yaml etc.;
-2. Command line arguments;
-3. Command (Query in Database) need to be run.
+- Domain specific config file in specific format;
+   - [x] toml
+   - [ ] yaml
+- [ ] Command line arguments;
+- [ ] Command (Query in Database) need to be run.
 
 Note 3. could also be used for dynamic configuring (change config during runtime),
 which will not be considered now.
 
-## Configs of Matrix
+## DSL
+
+Matrix use DSL in yaml format to describe the configurations need to be fuzzed.
+
+### Configs of Matrix
 The config file of Matrix tool is a yaml file, formatted as followed:
 ```yaml
 config:
@@ -39,23 +41,18 @@ Each `config_template` is a set of configs that will be generated as one entity 
 | **value** | Specification of this config |
 
 ```
-config := <key>: <value>
-        | <key>: {value: <value>[, when: <condition>]}
-
-condition := [<key>, <op>, <literal>]
-op := == | != | > | < | >= | <=
+config := { key: value, ... }
 
 value := <literal_type> # random generated value with no constraints, e.g. [u]int, bool, string
-       | <literal>
+       | <literal> # literal value of int, float, string
        | <list_of_choices>
        | <full_value_decl>
        | <struct_map> # struct_map as {...} is a shortcut of {type: sturct, value: ...}
 
-full_value_decl := {type: <type>[, arguments]}
-
 list_of_choices := []
                  | [<value>] :: <list_of_choices>
-                 | [{value: <value>, when: <condition>}] :: <list_of_choices>
+
+full_value_decl := {type: <type>[, when: <condition>][, arguments]}
 ```
 
 ## Type of config values
@@ -63,10 +60,24 @@ list_of_choices := []
    1. string
    2. bool
    3. int
+   
+      3.1. uint is an alias of int with minimal value 0
    4. float
    5. time (`s`/`m`/`h`)
    6. size (`B`/`KB`/`MB`/`...`)
 2. Struct
-3. todo: List for `repair-table-list`
 
-See `test.yaml` for a not-yet-complete example.
+See `examples/matrix-tidb.yaml` for an example of TiDB.
+
+## TODO
+### Serializer
+- [x] toml serializer
+- [ ] yaml serializer
+- [ ] SQL serializer
+- [ ] command line argument serializer
+### Generator
+- [x] simple recursive random generator
+- [ ] non-recursive generator that supports dependency
+### Random
+- [x] random generate value
+- [ ] specific random seed to have same output with same seed, to support continuous testing

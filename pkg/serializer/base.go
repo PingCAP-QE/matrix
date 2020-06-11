@@ -32,7 +32,11 @@ func ParseSerializerName(name string) (Serializer, error) {
 type TomlSerializer struct{}
 
 func (s TomlSerializer) Dump(value interface{}, target string) error {
-	encoder := toml.NewEncoder(os.Stdout)
+	f, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	encoder := toml.NewEncoder(f)
 	encoder.Indent = ""
 	return encoder.Encode(value)
 }
