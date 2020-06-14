@@ -1,11 +1,12 @@
 package context
 
 import (
+	"fmt"
+
 	"chaos-mesh/matrix/pkg/node"
 	"chaos-mesh/matrix/pkg/node/data"
 	"chaos-mesh/matrix/pkg/random"
 	"chaos-mesh/matrix/pkg/serializer"
-	"fmt"
 )
 
 type MatrixContext struct {
