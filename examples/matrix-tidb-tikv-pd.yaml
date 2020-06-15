@@ -373,183 +373,96 @@ configs:
     serializer: toml
     target: "tidb.toml"
     value:
-      split-table: bool
       mem-quota-query:
         type: int
-        range: [1073741824, 1073741824]
+        range: [536870912, 4294967296] # [0.5, 4] * 1024 ^ 3
+        default: 1073741824 # 1024 ^ 3
       oom-use-tmp-storage: bool
-      # tmp-storage-path: string
-      tmp-storage-quota: [-1, 10000000]
+      tmp-storage-quota: [-1, 1073741824]
       oom-action: ["log", "cancel"]
-      enable-streaming: bool
-      lower-case-table-names: 2
       lease:
         type: time
         range: [10s, 60s]
-      compatible-kill-query: bool
-      check-mb4-value-in-utf8: bool
-      treat-old-version-utf8-as-utf8mb4: bool
-      alter-primary-key: bool
-      server-version: string
-      repair-mode: bool
-      repair-table-list:
-        type: list
-        when: ["repair-table-list", "==", true]
-        value: []
-      new_collations_enabled_on_first_bootstrap: bool
-      max-server-connections: uint
-      max-index-length:
-        type: int
-        range: [3072, 12288]
-        when: ["tidb_version()", ">=", "v3.0.11"]
-      log:
-        format: ["json", "text", "console"]
-        enable-timestamp: bool
-        enable-slow-log: bool
-        slow-query-file: "tidb-slow.log"
-        slow-threshold:
-          type: time
-          range: [10ms, 1s]
-        expensive-threshold:
-          type: int
-          range: [1000, 100000]
-        query-log-max-len:
-          type: int
-          range: [256, 65536]
-        file:
-          type: struct
-          value:
-            filename: ""
-            max-size:
-              type: size
-              range: [100MB, 4GB]
-            max-days: uint
-            max-backups: uint
-            log-rotate: bool
-      security:
-        # ssl-ca: ""
-        # ssl-cert: ""
-        # ssl-key: ""
-        # cluster-ssl-ca: ""
-        # cluster-ssl-cert: ""
-        # cluster-ssl-key: ""
-        skip-grant-table: bool
       performance:
-        max-procs:
-          type: int
-          range: [0, 4]
         max-memory:
           type: int
-          range: [0, 100]
+          value: 0 # todo: find suitable range to fuzz
+          default: 0
           when: prepared-plan-cache.enabled
-        stmt-count-limit:
-          type: int
-          range: [500, 50000]
-        txn-total-size-limit:
-          type: int
-          range: [104857600, 104857600]
-        # - type: int
-        #   range: [104857600, 104857600]
-        #   when: binlog.enable
-        # - type: int
-        #   range: [10737418240,10737418240]
-        #   when: "!binlog.enable"
-        tcp-keep-alive: bool
-        cross-join: bool
         stats-lease:
           type: time
           range: [0s, 10s]
-        run-auto-analyze: bool
-        feedback-probability: float
+          default: 3s
+        bind-info-lease:
+          type: time
+          range: [0s, 10s]
+          default: 3s
+        feedback-probability:
+          type: float
+          range: [0, 0.5]
+          default: 0.05
         query-feedback-limit:
           type: int
           range: [128, 4096]
-        pseudo-estimate-ratio: float
-        force-priority: ["NO_PRIORITY", "LOW_PRIORITY", "HIGH_PRIORITY", "DELAYED"]
+          default: 1024
       prepared-plan-cache:
         enabled: bool
-        capicity: uint
-        memory-guard-ratio: float
+        capicity:
+          type: int
+          range: [10, 1000]
+          default: 100
+        memory-guard-ratio:
+          type: float
+          range: [0, 1]
+          default: 0.1
       tikv-client:
         grpc-connection-count:
           type: int
           range: [1, 64]
-        grpc-keepalive-time:
-          type: int
-          range: [1, 60]
-        grpc-keepalive-timeout:
-          type: int
-          range: [1, 10]
+          default: 16
         commit-timeout:
           type: time
           range: [1s, 1m]
-        max-txn-time-use:
-          type: int
-          range: [100, 1000]
+          default: 41s
         max-batch-size:
           type: int
           range: [1, 512]
+          default: 128
         max-batch-wait-time:
           type: int
-          range: [0, 1000000000000]
-        batch-wait-size:
-          type: int
-          range: [0, 100]
-        overload-threshold:
-          type: int
-          range: [10, 400]
-          when: ["tikv-client.max-batch-size", ">=", 0]
+          range: [0, 1000000000] # [1ns, 1s]
+          default: 0
         copr-cache:
           type: struct
           when: ["version", ">=", "4.0.0"]
           value:
             enable: bool
             capacity-mb:
-              type: int
+              type: float
               range: [100, 10000]
+              default: 1000
             admission-max-result-mb:
-              type: int
+              type: float
               range: [1, 100]
+              default: 10
             admission-min-process-ms:
               type: int
               range: [1,50]
-      txn-local-latches:
-        enable: bool
-        capacity:
-          type: int
-          range: [1024000, 4096000]
-      binlog:
-        enable: bool
-        write-timeout:
-          type: time
-          range: [5s, 30s]
-        ignore-error: bool
-        # binlog-socket: ""
-        strategy: ["hash", "range"]
-      status:
-        report-status: bool
-        record-db-qps: bool
+              default: 5
       stmt-summary:
-        type: struct
-        when: ["version", ">=", "v3.0.4"]
-        value:
-          max-stmt-count:
-            type: int
-            range: [10, 200]
-          max-sql-length:
-            type: int
-            range: [1024, 8192]
-      pessimistic-txn:
-        enable: bool
-        max-retry-count:
+        max-stmt-count:
           type: int
-          range: [64, 1024]
-      experimental:
-        type: struct
-        when: ["version", ">=", "v3.1.0"]
-        value:
-          allow-auto-random:
-            type: bool
-            when: ["not", "alter-primary-key"]
-
-
+          range: [10, 200]
+          default: 100
+        max-sql-length:
+          type: int
+          range: [1024, 8192]
+          default: 4096
+        refresh-interval:
+          type: int
+          range: [300, 3000]
+          default: 1800
+        history-size:
+          type: int
+          range: [6, 48]
+          default: 24
