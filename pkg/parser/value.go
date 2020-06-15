@@ -24,6 +24,9 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 		return parseString(rawValue.(string))
 	case float64:
 		return parseFloat(rawValue.(float64)), nil
+	case bool:
+		b := rawValue.(bool)
+		return data.HollowBool{Value: &b}, nil
 	default:
 		log.L().Warn(fmt.Sprintf("%s not handled, return HollowInt", rawValue))
 		return data.HollowInt{RangeStart: utils.MinInt, RangeEnd: utils.MaxInt}, nil

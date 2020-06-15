@@ -29,6 +29,11 @@ func (c MatrixContext) Gen() node.ConfigGroup {
 func simpleRecGen(hollow interface{}) interface{} {
 	switch hollow.(type) {
 	case data.HollowBool:
+		b := hollow.(data.HollowBool).Value
+		if b != nil {
+			var boolValue bool = *b
+			return boolValue
+		}
 		return random.RandChoose([]interface{}{true, false})
 	case data.HollowInt:
 		return random.RandInt(hollow.(data.HollowInt).RangeStart, hollow.(data.HollowInt).RangeEnd)

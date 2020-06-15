@@ -12,7 +12,10 @@ type HollowInterface interface {
 
 type HollowCondition struct{ Raw []interface{} }
 
-type HollowBool struct{ Condition *HollowCondition }
+type HollowBool struct {
+	Value     *bool
+	Condition *HollowCondition
+}
 
 type HollowInt struct {
 	RangeStart, RangeEnd int

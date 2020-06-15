@@ -14,7 +14,7 @@ func ParseFile(rawData node.MatrixConfigFile) (*context.MatrixContext, error) {
 	ctx.Configs = make(map[string]node.AbstractConfig)
 
 	for _, config := range rawData.Configs {
-		conf, err := ParseConfig(config)
+		conf, err := parseConfig(config)
 		if err != nil {
 			return nil, err
 		}
@@ -26,7 +26,7 @@ func ParseFile(rawData node.MatrixConfigFile) (*context.MatrixContext, error) {
 	return &ctx, nil
 }
 
-func ParseConfig(rawConfig node.RawConfig) (*node.AbstractConfig, error) {
+func parseConfig(rawConfig node.RawConfig) (*node.AbstractConfig, error) {
 	var conf node.AbstractConfig
 	var err error
 
