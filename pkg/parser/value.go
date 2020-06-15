@@ -56,6 +56,11 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 			delete(rawMap, "when")
 		}
 
+		if _, ok = rawMap["default"]; ok {
+			// todo: store default value
+			delete(rawMap, "default")
+		}
+
 		hollowValue, err = parseHollowValue(rawMap)
 		if err != nil {
 			return nil, err
@@ -152,6 +157,8 @@ func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
 		return parseHollowFloat(rawHollow)
 	case data.TypeList:
 		return parseHollowList(rawHollow)
+	case data.TypeChoice:
+		return parseHollowChoice(rawHollow)
 	case data.TypeMap, data.TypeStruct:
 		return parseHollowMap(rawHollow)
 	case data.TypeTime:
@@ -296,6 +303,18 @@ func parseHollowList(raw map[string]interface{}) (interface{}, error) {
 		}
 	} else {
 		return nil, errors.New("type `list` does not contain field `value`")
+	}
+}
+
+func parseHollowChoice(raw map[string]interface{}) (interface{}, error) {
+	if rawList, ok := raw["value"]; ok {
+		if rawList, ok := rawList.([]interface{}); ok {
+			return parseChoice(rawList)
+		} else {
+			return nil, errors.New(fmt.Sprintf("field `value` of type `choice` is not if type `[]interface{}`: %s", rawList))
+		}
+	} else {
+		return nil, errors.New("type `choice` does not contain field `value`")
 	}
 }
 func parseHollowMap(raw map[string]interface{}) (interface{}, error) {
