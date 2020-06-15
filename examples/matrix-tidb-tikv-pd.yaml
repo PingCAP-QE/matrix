@@ -1,4 +1,103 @@
 configs:
+  - tag: pd
+    serializer: toml
+    target: "pd.toml"
+    value:
+      log:
+        level: "info"
+      schedule:
+        max-snapshot-count:
+          type: int
+          range: [1, 10]
+          default: 3
+        max-pending-peer-count:
+          type: int
+          range: [1, 32]
+          default: 16
+        max-merge-region-size:
+          type: int
+          range: [1, 50]
+          default: 20
+        max-merge-region-keys:
+          type: int
+          range: [5000, 400000]
+          default: 200000
+        split-merge-interval:
+          type: time
+          range: [10m, 2h]
+          default: 1h
+        enable-one-way-merge: bool
+        enable-cross-table-merge: bool
+        patrol-region-interval:
+          type: time
+          range: [10ms, 1s]
+          default: 100ms
+        max-store-down-time:
+          type: time
+          range: [10m, 1h]
+          default: 30m
+        leader-schedule-limit:
+          type: int
+          range: [1, 10]
+          default: 4
+        leader-schedule-policy:
+          type: choice
+          value: ["count", "size"]
+          default: "count"
+        region-schedule-limit:
+          type: int
+          range: [512, 4096]
+          default: 2048
+        replica-schedule-limit:
+          type: int
+          range: [16, 256]
+          default: 64
+        merge-schedule-limit:
+          type: int
+          range: [1, 32]
+          default: 8
+        hot-region-schedule-limit:
+          type: int
+          range: [1, 16]
+          default: 4
+        hot-region-cache-hits-threshold:
+          type: int
+          range: [1, 10]
+          default: 3
+        store-balance-rate:
+          type: float
+          range: [1, 50]
+          default: 15
+        tolerant-size-ratio:
+          type: float
+          range: [0, 10]
+          default: 5
+        low-space-ratio:
+          type: float
+          range: [0.7, 0.999]
+          default: 0.8
+        high-space-ratio:
+          type: float
+          range: [0.001, 0.7]
+          default: 0.6
+        scheduler-max-waiting-operator:
+          type: int
+          range: [1, 10]
+          default: 5
+        store-limit-mode: ["auto", "manual"]
+      replication:
+        max-replicas:
+          type: int
+          range: [1, 10]
+          default: 3
+        strictly-match-label: bool
+        location-labels: # need detail information
+          type: list
+          value: ["zone", "rack"]
+        enable-placement-rules: bool # not in doc or example
+      pd-server:
+        use-region-storage: bool
+        key-type: ["table", "raw", "txn"] # not in doc or example
   - tag: tikv
     serializer: toml
     target: "tikv.toml"
