@@ -11,7 +11,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-PACKAGE_LIST := go list ./... | grep -vE "matrix/test|pkg/ptrace|zz_generated|vendor"
+PACKAGE_LIST := go list ./... | grep -vE "matrix/test"
 PACKAGE_DIRECTORIES := $(PACKAGE_LIST) | sed 's|chaos-mesh/matrix/||'
 
 default: all
