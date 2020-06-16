@@ -155,6 +155,12 @@ func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
 		return parseHollowInt(rawHollow)
 	case data.TypeFloat:
 		return parseHollowFloat(rawHollow)
+	case data.TypeString:
+		var s string
+		if rawString, ok := rawHollow["value"]; ok {
+			s = rawString.(string)
+		}
+		return data.HollowString{Value: s}, nil
 	case data.TypeList:
 		return parseHollowList(rawHollow)
 	case data.TypeChoice:
