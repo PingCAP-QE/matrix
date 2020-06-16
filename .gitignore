@@ -1,2 +1,7 @@
 /bin
 .idea
+
+*.toml
+
+# tiup log
+/log

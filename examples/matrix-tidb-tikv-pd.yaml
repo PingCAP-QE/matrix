@@ -1,0 +1,468 @@
+configs:
+  - tag: pd
+    serializer: toml
+    target: "pd.toml"
+    value:
+      log:
+        level: "info"
+      schedule:
+        max-snapshot-count:
+          type: int
+          range: [1, 10]
+          default: 3
+        max-pending-peer-count:
+          type: int
+          range: [1, 32]
+          default: 16
+        max-merge-region-size:
+          type: int
+          range: [1, 50]
+          default: 20
+        max-merge-region-keys:
+          type: int
+          range: [5000, 400000]
+          default: 200000
+        split-merge-interval:
+          type: time
+          range: [10m, 2h]
+          default: 1h
+        enable-one-way-merge: bool
+        enable-cross-table-merge: bool
+        patrol-region-interval:
+          type: time
+          range: [10ms, 1s]
+          default: 100ms
+        max-store-down-time:
+          type: time
+          range: [10m, 1h]
+          default: 30m
+        leader-schedule-limit:
+          type: int
+          range: [1, 10]
+          default: 4
+        leader-schedule-policy:
+          type: choice
+          value: ["count", "size"]
+          default: "count"
+        region-schedule-limit:
+          type: int
+          range: [512, 4096]
+          default: 2048
+        replica-schedule-limit:
+          type: int
+          range: [16, 256]
+          default: 64
+        merge-schedule-limit:
+          type: int
+          range: [1, 32]
+          default: 8
+        hot-region-schedule-limit:
+          type: int
+          range: [1, 16]
+          default: 4
+        hot-region-cache-hits-threshold:
+          type: int
+          range: [1, 10]
+          default: 3
+        store-balance-rate:
+          type: float
+          range: [1, 50]
+          default: 15
+        tolerant-size-ratio:
+          type: float
+          range: [0, 10]
+          default: 5
+        low-space-ratio:
+          type: float
+          range: [0.7, 0.999]
+          default: 0.8
+        high-space-ratio:
+          type: float
+          range: [0.001, 0.7]
+          default: 0.6
+        scheduler-max-waiting-operator:
+          type: int
+          range: [1, 10]
+          default: 5
+        store-limit-mode: ["auto", "manual"]
+      replication:
+        max-replicas:
+          type: int
+          range: [1, 10]
+          default: 3
+        strictly-match-label: bool
+        location-labels: # need detail information
+          type: list
+          value: ["zone", "rack"]
+        enable-placement-rules: bool # not in doc or example
+      pd-server:
+        use-region-storage: bool
+        key-type: ["table", "raw", "txn"] # not in doc or example
+  - tag: tikv
+    serializer: toml
+    target: "tikv.toml"
+    value:
+      status-thread-pool-size:
+        type: int
+        range: [1, 10]
+      grpc-compression-type: ["none", "deflate", "gzip"]
+      grpc-concurrency:
+        type: int
+        range: [1, 10]
+      grpc-concurrent-stream:
+        type: int
+        range: [1, 4096]
+      "server.grpc-raft-conn-num":
+        type: int
+        range: [1, 100]
+      "server.grpc-stream-initial-window-size":
+        type: size
+        range: [1KB, 10MB]
+      "server.grpc-keepalive-time":
+        type: time
+        range: [1s, 60s]
+      "server.grpc-keepalive-timeout":
+        type: time
+        range: [1s, 10s]
+      "server.concurrent-send-snap-limit":
+        type: int
+        range: [1, 64]
+      "server.concurrent-recv-snap-limit":
+        type: int
+        range: [1, 64]
+      "server.end-point-recursion-limit":
+        type: int
+        range: [1, 5000]
+      "server.end-point-request-max-handle-duration":
+        type: time
+        range: [1s, 100s]
+      "server.snap-max-write-bytes-per-sec":
+        type: size
+        range: [1KB, 2GB]
+      "readpool.unified":
+        min-thread-count:
+          type: int
+          range: [1, 2]
+        max-thread-count:
+          type: int
+          range: [2, 4]
+        stack-size:
+          type: size
+          range: [2MB, 20MB]
+        max-tasks-per-worker:
+          type: int
+          range: [2, 4000]
+      "readpool.storage":
+        use-unified-pool: bool
+        high-concurrency:
+          type: int
+          range: [1, 10]
+        normal-concurrency:
+          type: int
+          range: [1, 10]
+        low-concurrency:
+          type: int
+          range: [1, 10]
+        max-tasks-per-worker-high:
+          type: int
+          range: [2, 4000]
+        max-tasks-per-worker-normal:
+          type: int
+          range: [2, 4000]
+        max-tasks-per-worker-low:
+          type: int
+          range: [2, 4000]
+        stack-size:
+          type: size
+          range: [2MB, 20MB]
+      "readpool.coprocessor":
+        use-unified-pool: bool
+        high-concurrency:
+          type: int
+          range: [1, 10]
+        normal-concurrency:
+          type: int
+          range: [1, 10]
+        low-concurrency:
+          type: int
+          range: [1, 10]
+        max-tasks-per-worker-high:
+          type: int
+          range: [2, 4000]
+        max-tasks-per-worker-normal:
+          type: int
+          range: [2, 4000]
+        max-tasks-per-worker-low:
+          type: int
+          range: [2, 4000]
+        stack-size:
+          type: size
+          range: [2MB, 20MB]
+      storage:
+        scheduler-notify-capacity:
+          type: int
+          range: [1, 20480]
+        scheduler-concurrency:
+          type: int
+          range: [1, 4096000]
+        scheduler-worker-pool-size:
+          type: int
+          range: [1, 16]
+        scheduler-pending-write-threshold:
+          type: size
+          range: [10MB, 1GB]
+        reserve-space:
+          type: size
+          range: [0MB, 4GB]
+      "storage.block-cache":
+        shared: bool
+        capacity:
+          type: size
+          range: [100MB, 4GB]
+      raftstore:
+        sync-log: bool
+        prevote: bool
+        #raftdb-path: ""
+        raft-base-tick-interval:
+          type: time
+          range: [1ms, 10s]
+        raft-heartbeat-ticks:
+          type: int
+          range: [1, 10]
+        #raft-election-timeout-ticks:
+        #  type: int
+        #  range: ["raft-heartbeat-ticks", 100]
+        #raft-min-election-timeout-ticks:
+        #  type: int
+        #  range: ["raft-election-timeout-ticks", 100]
+        raft-max-election-timeout-ticks:
+          type: int
+          range: [0, 100]
+        raft-max-size-per-message:
+          type: size
+          range: [0MB, 10MB]
+        raft-max-inflight-msgs:
+          type: int
+          range: [1, 512]
+        raft-entry-max-size:
+          type: size
+          range: [0MB, 32MB]
+        raft-log-gc-tick-interval:
+          type: time
+          range: [0s, 20s]
+        raft-log-gc-threshold:
+          type: int
+          range: [1, 100]
+        raft-log-gc-count-limit:
+          type: int
+          range: [0, 10]
+        raft-log-gc-size-limit:
+          type: int
+          range: [1, 100]
+        raft-entry-cache-life-time:
+          type: time
+          range: [0s, 30s]
+        raft-reject-transfer-leader-duration:
+          type: time
+          range: [0s, 10s]
+        hibernate-regions: bool
+        peer-stale-state-check-interval:
+          type: time
+          range: [1m, 5m]
+        split-region-check-tick-interval:
+          type: time
+          range: [0s, 1m]
+        region-split-check-diff:
+          type: int
+          range: [0, 4]
+        region-compact-check-interval:
+          type: time
+          range: [0m, 10m]
+        clean-stale-peer-delay:
+          type: time
+          range: [0m, 20m]
+        region-compact-check-step:
+          type: int
+          range: [0, 200]
+        region-compact-min-tombstones:
+          type: int
+          range: [0, 20000]
+        region-compact-tombstones-percent:
+          type: int
+          range: [1, 100]
+        pd-heartbeat-tick-interval:
+          type: time
+          range: [0s, 2m]
+        pd-store-heartbeat-tick-interval:
+          type: time
+          range: [0s, 20s]
+        snap-mgr-gc-tick-interval:
+          type: time
+          range: [0s, 10s]
+        snap-gc-timeout:
+          type: time
+          range: [0h, 10h]
+        lock-cf-compact-interval:
+          type: size
+          range: [0m, 256m]
+        lock-cf-compact-bytes-threshold:
+          type: size
+          range: [0m, 256m]
+        notify-capacity:
+          type: int
+          range: [0, 81920]
+        messages-per-tick:
+          type: int
+          range: [0, 8192]
+        max-peer-down-duration:
+          type: time
+          range: [0m, 10m]
+        max-leader-missing-duration:
+          type: time
+          range: [1h, 4h]
+        abnormal-leader-missing-duration:
+          type: time
+          range: [10m, 1h]
+        #peer-stale-state-check-interval:
+        #  type: time
+        #  range: [1m, 10m]
+        leader-transfer-max-log-lag:
+          type: int
+          range: [10, 100]
+        snap-apply-batch-size:
+          type: size
+          range: [0m, 100m]
+        consistency-check-interval:
+          type: time
+          range: [0s, 10s]
+        raft-store-max-leader-lease:
+          type: time
+          range: [0s, 20s]
+        allow-remove-leader: bool
+        merge-max-log-gap:
+          type: int
+          range: [10, 100]
+        merge-check-tick-interval:
+          type: time
+          range: [0s, 20s]
+        use-delete-range: bool
+        cleanup-import-sst-interval:
+          type: time
+          range: [0s, 10m]
+        local-read-batch-size:
+          type: int
+          range: [0, 2048]
+        apply-max-batch-size:
+          type: int
+          range: [0, 2048]
+        apply-pool-size:
+          type: int
+          range: [0, 4]
+        store-max-batch-size:
+          type: int
+          range: [0, 2048]
+        store-pool-size:
+          type: int
+          range: [0, 4]
+        future-poll-size:
+          type: int
+          range: [0, 2]
+      coprocessor:
+        split-region-on-table: bool
+  - tag: tidb
+    serializer: toml
+    target: "tidb.toml"
+    value:
+      mem-quota-query:
+        type: int
+        range: [536870912, 4294967296] # [0.5, 4] * 1024 ^ 3
+        default: 1073741824 # 1024 ^ 3
+      oom-use-tmp-storage: bool
+      tmp-storage-quota: [-1, 1073741824]
+      oom-action: ["log", "cancel"]
+      lease:
+        type: time
+        range: [10s, 60s]
+      performance:
+        max-memory:
+          type: int
+          value: 0 # todo: find suitable range to fuzz
+          default: 0
+          when: prepared-plan-cache.enabled
+        stats-lease:
+          type: time
+          range: [0s, 10s]
+          default: 3s
+        bind-info-lease:
+          type: time
+          range: [0s, 10s]
+          default: 3s
+        feedback-probability:
+          type: float
+          range: [0, 0.5]
+          default: 0.05
+        query-feedback-limit:
+          type: int
+          range: [128, 4096]
+          default: 1024
+      prepared-plan-cache:
+        enabled: bool
+        capicity:
+          type: int
+          range: [10, 1000]
+          default: 100
+        memory-guard-ratio:
+          type: float
+          range: [0, 1]
+          default: 0.1
+      tikv-client:
+        grpc-connection-count:
+          type: int
+          range: [1, 64]
+          default: 16
+        commit-timeout:
+          type: time
+          range: [1s, 1m]
+          default: 41s
+        max-batch-size:
+          type: int
+          range: [1, 512]
+          default: 128
+        max-batch-wait-time:
+          type: int
+          range: [0, 1000000000] # [1ns, 1s]
+          default: 0
+        copr-cache:
+          type: struct
+          when: ["version", ">=", "4.0.0"]
+          value:
+            enable: bool
+            capacity-mb:
+              type: float
+              range: [100, 10000]
+              default: 1000
+            admission-max-result-mb:
+              type: float
+              range: [1, 100]
+              default: 10
+            admission-min-process-ms:
+              type: int
+              range: [1,50]
+              default: 5
+      stmt-summary:
+        max-stmt-count:
+          type: int
+          range: [10, 200]
+          default: 100
+        max-sql-length:
+          type: int
+          range: [1024, 8192]
+          default: 4096
+        refresh-interval:
+          type: int
+          range: [300, 3000]
+          default: 1800
+        history-size:
+          type: int
+          range: [6, 48]
+          default: 24
