@@ -335,7 +335,7 @@ configs:
           default: 1024
       prepared-plan-cache:
         enabled: bool
-        capacaty:
+        capacity:
           type: int
           range: [10, 1000]
           default: 100
