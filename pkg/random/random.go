@@ -14,13 +14,18 @@
 package random
 
 import (
-	"chaos-mesh/matrix/pkg/node/data"
-	"chaos-mesh/matrix/pkg/utils"
 	"fmt"
 	"math/rand"
 
+	"chaos-mesh/matrix/pkg/node/data"
+	"chaos-mesh/matrix/pkg/utils"
+
 	"github.com/c2h5oh/datasize"
 )
+
+func Seed(seed int64) {
+	rand.Seed(seed)
+}
 
 func randUIntN(ui uint) uint {
 	if ui <= uint(utils.MaxInt) {

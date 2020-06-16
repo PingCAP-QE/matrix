@@ -42,7 +42,10 @@ configs:
           default: 4
         leader-schedule-policy:
           type: choice
-          value: ["count", "size"]
+          value:
+            - "count"
+            - type: string
+              value: "size"
           default: "count"
         region-schedule-limit:
           type: int
@@ -102,79 +105,40 @@ configs:
     serializer: toml
     target: "tikv.toml"
     value:
-      status-thread-pool-size:
-        type: int
-        range: [1, 10]
-      grpc-compression-type: ["none", "deflate", "gzip"]
-      grpc-concurrency:
-        type: int
-        range: [1, 10]
-      grpc-concurrent-stream:
-        type: int
-        range: [1, 4096]
-      "server.grpc-raft-conn-num":
-        type: int
-        range: [1, 100]
-      "server.grpc-stream-initial-window-size":
-        type: size
-        range: [1KB, 10MB]
-      "server.grpc-keepalive-time":
-        type: time
-        range: [1s, 60s]
-      "server.grpc-keepalive-timeout":
-        type: time
-        range: [1s, 10s]
-      "server.concurrent-send-snap-limit":
-        type: int
-        range: [1, 64]
-      "server.concurrent-recv-snap-limit":
-        type: int
-        range: [1, 64]
-      "server.end-point-recursion-limit":
-        type: int
-        range: [1, 5000]
-      "server.end-point-request-max-handle-duration":
-        type: time
-        range: [1s, 100s]
-      "server.snap-max-write-bytes-per-sec":
-        type: size
-        range: [1KB, 2GB]
+      server:
+        grpc-concurrency:
+          type: int
+          range: [1, 10]
+          default: 4
+        enable-request-batch: bool
+        request-batch-enable-cross-command: bool
+        request-batch-wait-duration:
+          type: time
+          range: [1ms, 20ms]
+          default: 1ms
       "readpool.unified":
         min-thread-count:
           type: int
           range: [1, 2]
+          default: 1
         max-thread-count:
           type: int
-          range: [2, 4]
-        stack-size:
-          type: size
-          range: [2MB, 20MB]
-        max-tasks-per-worker:
-          type: int
-          range: [2, 4000]
+          range: [2, 6]
+          default: 4 # max(4, LOGICAL_CPU_NUM * 0.8)
       "readpool.storage":
         use-unified-pool: bool
         high-concurrency:
           type: int
           range: [1, 10]
+          default: 4
         normal-concurrency:
           type: int
           range: [1, 10]
+          default: 4
         low-concurrency:
           type: int
           range: [1, 10]
-        max-tasks-per-worker-high:
-          type: int
-          range: [2, 4000]
-        max-tasks-per-worker-normal:
-          type: int
-          range: [2, 4000]
-        max-tasks-per-worker-low:
-          type: int
-          range: [2, 4000]
-        stack-size:
-          type: size
-          range: [2MB, 20MB]
+          default: 4
       "readpool.coprocessor":
         use-unified-pool: bool
         high-concurrency:
@@ -189,186 +153,150 @@ configs:
         max-tasks-per-worker-high:
           type: int
           range: [2, 4000]
+          default: 2000
         max-tasks-per-worker-normal:
           type: int
           range: [2, 4000]
+          default: 2000
         max-tasks-per-worker-low:
           type: int
           range: [2, 4000]
-        stack-size:
-          type: size
-          range: [2MB, 20MB]
+          default: 2000
       storage:
-        scheduler-notify-capacity:
-          type: int
-          range: [1, 20480]
         scheduler-concurrency:
           type: int
           range: [1, 4096000]
+          default: 2048000
         scheduler-worker-pool-size:
           type: int
           range: [1, 16]
+          default: 4
         scheduler-pending-write-threshold:
           type: size
           range: [10MB, 1GB]
-        reserve-space:
-          type: size
-          range: [0MB, 4GB]
-      "storage.block-cache":
-        shared: bool
-        capacity:
-          type: size
-          range: [100MB, 4GB]
+          default: 100MB
+        block-cache:
+          shared: bool
+          capacity:
+            type: size
+            range: [500MB, 2GB]
+            default: 1GB
       raftstore:
         sync-log: bool
-        prevote: bool
-        #raftdb-path: ""
-        raft-base-tick-interval:
-          type: time
-          range: [1ms, 10s]
-        raft-heartbeat-ticks:
+        nitify-capacity:
           type: int
-          range: [1, 10]
-        #raft-election-timeout-ticks:
-        #  type: int
-        #  range: ["raft-heartbeat-ticks", 100]
-        #raft-min-election-timeout-ticks:
-        #  type: int
-        #  range: ["raft-election-timeout-ticks", 100]
-        raft-max-election-timeout-ticks:
-          type: int
-          range: [0, 100]
-        raft-max-size-per-message:
-          type: size
-          range: [0MB, 10MB]
-        raft-max-inflight-msgs:
-          type: int
-          range: [1, 512]
-        raft-entry-max-size:
-          type: size
-          range: [0MB, 32MB]
-        raft-log-gc-tick-interval:
-          type: time
-          range: [0s, 20s]
-        raft-log-gc-threshold:
-          type: int
-          range: [1, 100]
-        raft-log-gc-count-limit:
-          type: int
-          range: [0, 10]
-        raft-log-gc-size-limit:
-          type: int
-          range: [1, 100]
-        raft-entry-cache-life-time:
-          type: time
-          range: [0s, 30s]
-        raft-reject-transfer-leader-duration:
-          type: time
-          range: [0s, 10s]
-        hibernate-regions: bool
-        peer-stale-state-check-interval:
-          type: time
-          range: [1m, 5m]
-        split-region-check-tick-interval:
-          type: time
-          range: [0s, 1m]
-        region-split-check-diff:
-          type: int
-          range: [0, 4]
-        region-compact-check-interval:
-          type: time
-          range: [0m, 10m]
-        clean-stale-peer-delay:
-          type: time
-          range: [0m, 20m]
-        region-compact-check-step:
-          type: int
-          range: [0, 200]
-        region-compact-min-tombstones:
-          type: int
-          range: [0, 20000]
-        region-compact-tombstones-percent:
-          type: int
-          range: [1, 100]
-        pd-heartbeat-tick-interval:
-          type: time
-          range: [0s, 2m]
-        pd-store-heartbeat-tick-interval:
-          type: time
-          range: [0s, 20s]
-        snap-mgr-gc-tick-interval:
-          type: time
-          range: [0s, 10s]
-        snap-gc-timeout:
-          type: time
-          range: [0h, 10h]
-        lock-cf-compact-interval:
-          type: size
-          range: [0m, 256m]
-        lock-cf-compact-bytes-threshold:
-          type: size
-          range: [0m, 256m]
-        notify-capacity:
-          type: int
-          range: [0, 81920]
+          range: [10240, 81920]
+          default: 40960
         messages-per-tick:
           type: int
-          range: [0, 8192]
-        max-peer-down-duration:
-          type: time
-          range: [0m, 10m]
-        max-leader-missing-duration:
-          type: time
-          range: [1h, 4h]
-        abnormal-leader-missing-duration:
-          type: time
-          range: [10m, 1h]
-        #peer-stale-state-check-interval:
-        #  type: time
-        #  range: [1m, 10m]
-        leader-transfer-max-log-lag:
-          type: int
-          range: [10, 100]
-        snap-apply-batch-size:
-          type: size
-          range: [0m, 100m]
-        consistency-check-interval:
-          type: time
-          range: [0s, 10s]
-        raft-store-max-leader-lease:
-          type: time
-          range: [0s, 20s]
-        allow-remove-leader: bool
-        merge-max-log-gap:
-          type: int
-          range: [10, 100]
-        merge-check-tick-interval:
-          type: time
-          range: [0s, 20s]
-        use-delete-range: bool
-        cleanup-import-sst-interval:
-          type: time
-          range: [0s, 10m]
-        local-read-batch-size:
-          type: int
-          range: [0, 2048]
-        apply-max-batch-size:
-          type: int
-          range: [0, 2048]
+          range: [1024, 8192]
+          default: 4096
         apply-pool-size:
           type: int
-          range: [0, 4]
-        store-max-batch-size:
-          type: int
-          range: [0, 2048]
+          range: [1, 4]
         store-pool-size:
           type: int
-          range: [0, 4]
-        future-poll-size:
-          type: int
-          range: [0, 2]
+          range: [1, 4]
       coprocessor:
         split-region-on-table: bool
+      rocksdb:
+        max-background-jobs:
+          type: int
+          range: [1, 16]
+          default: 8
+        max-sub-compactions:
+          type: int
+          range: [1, 10]
+          default: 3
+        rate-bytes-per-sec:
+          type: choice
+          default: 0
+          value:
+            - 0
+            - type: int
+              range: [10485760, 104857600] # [10MB, 100MB]
+        auto-tuned: bool
+        titan:
+          enabled: bool
+          max-background-gc:
+            type: int
+            range: [1, 10]
+            default: 4
+        defaultcf:
+          #compression-per-level: list todo: list
+          level0-slowdown-writes-trigger:
+            type: int
+            range: [5, 30]
+            default: 20
+          level0-stop-writes-trigger:
+            type: int
+            range: [31, 50]
+            default: 36
+          max-write-buffer-number:
+            type: int
+            range: [2, 10]
+            default: 5
+          titan:
+            min-blob-size:
+              type: size
+              range: [512B, 10KB]
+              default: 1KB
+            blob-file-compression:
+              type: choice
+              value: ["no", "snappy", "zlib", "bzip2", "lz4", "lz4hc", "zstd"]
+              default: "lz4"
+            blob-cache-size:
+              type: size
+              range: [0GB, 1GB]
+              default: 0GB
+            discardable-ratio:
+              type: float
+              range: [0.1, 0.9]
+              default: 0.5
+            blob-run-mode:
+              type: choice
+              value: ["normal", "read-only", "fallback"]
+              default: "normal"
+            level_merge: bool # default: false
+            gc-merge-rewrite: bool # default: false
+        writecf:
+          level0-slowdown-writes-trigger:
+            type: int
+            range: [5, 30]
+            default: 20
+          level0-stop-writes-trigger:
+            type: int
+            range: [31, 50]
+            default: 36
+      raftdb:
+        max-background-jobs:
+          type: int
+          range: [1, 10]
+          default: 4
+        max-sub-compactions:
+          type: int
+          range: [1, 5]
+          default: 2
+        defaultcf:
+          level0-slowdown-writes-trigger:
+            type: int
+            range: [5, 30]
+            default: 20
+          level0-stop-writes-trigger:
+            type: int
+            range: [31, 50]
+            default: 36
+      pessimistic-txn:
+        enabled: bool # default: true
+        wait-for-lock-timeout:
+          type: time
+          range: [500ms, 2s]
+          default: 1s
+        wake-up-delay-duration:
+          type: time
+          range: [5ms, 50ms]
+          default: 20ms
+        pipelined: bool # default: false
   - tag: tidb
     serializer: toml
     target: "tidb.toml"
@@ -407,7 +335,7 @@ configs:
           default: 1024
       prepared-plan-cache:
         enabled: bool
-        capacity:
+        capacaty:
           type: int
           range: [10, 1000]
           default: 100
