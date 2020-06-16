@@ -5,10 +5,22 @@ Matrix is a config fuzzer, i.e. generate a set of configurations for a program t
 ## Quickstart
 ```bash
 make
-bin/matrix -c examples/matrix-tidb.yaml # this will generate a TiDB config `tidb.yaml` in current folder
+bin/matrix -c examples/matrix-tidb-tikv-pd.yaml # this will generate three TiDB-related configs `tidb.yaml`, `tikv.yaml` and `pd.yaml` in current folder
 ```
 
 Output folder can be configured with `-d <output folder>`
+
+## Usage
+```
+$ ./bin/matrix -h          
+Usage of ./bin/matrix:
+  -c string
+        config file
+  -d string
+        output folder (default ".")
+  -s int
+        seed of rand (default UTC nanoseconds of now)
+```
 
 ## Type of configs
 - Domain specific config file in specific format;
