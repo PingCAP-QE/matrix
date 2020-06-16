@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/pingcap/log"
@@ -32,12 +33,14 @@ import (
 var (
 	conf   string
 	output string
+	seed   int64
 	err    error
 )
 
 func main() {
 	flag.StringVar(&conf, "c", "", "config file")
 	flag.StringVar(&output, "d", ".", "output folder")
+	flag.Int64Var(&seed, "s", 0, "seed of rand, default UTC nanoseconds of now")
 	flag.Parse()
 
 	if conf == "" {
@@ -52,6 +55,10 @@ func main() {
 	} else {
 		log.L().Info(fmt.Sprintf("dumpping to %s", output))
 	}
+	if seed == 0 {
+		seed = time.Now().UnixNano()
+	}
+	log.L().Info(fmt.Sprintf("SEED: %d", seed))
 
 	cont, err := ioutil.ReadFile(conf)
 	if err != nil {
@@ -71,7 +78,7 @@ func main() {
 		panic(fmt.Sprintf("file not valid: %s", err.Error()))
 	}
 
-	values := ctx.Gen()
+	values := ctx.Gen(seed)
 	for config, concrete := range values.Configs {
 		err = config.Serializer.Dump(concrete, path.Join(output, config.Target))
 		if err != nil {

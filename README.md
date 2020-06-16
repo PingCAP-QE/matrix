@@ -84,4 +84,4 @@ See `examples/matrix-tidb.yaml` for an example of TiDB.
 - [ ] Non-recursive generator that supports dependency
 ### Random
 - [x] Random generate value
-- [ ] Specific random seed to have same output with same seed, to support continuous testing
+- [x] Specific random seed to have same output with same seed, to support continuous testing
