@@ -20,7 +20,7 @@ all:
 	$(GOBUILD) $(GOMOD) -o bin/matrix src/main.go
 
 groupimports: $(GOBIN)/goimports
-	$< -w -l -local github.com/pingcap/matrix $$($(PACKAGE_DIRECTORIES))
+	$< -w -l -local chaos-mesh/matrix $$($(PACKAGE_DIRECTORIES))
 
 fmt: groupimports
 	go fmt ./...

@@ -22,12 +22,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ghodss/yaml"
-	"github.com/pingcap/log"
-
 	"chaos-mesh/matrix/pkg/context"
 	"chaos-mesh/matrix/pkg/node"
 	"chaos-mesh/matrix/pkg/parser"
+
+	"github.com/ghodss/yaml"
+	"github.com/pingcap/log"
 )
 
 var (
