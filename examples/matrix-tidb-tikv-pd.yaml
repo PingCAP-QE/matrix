@@ -94,9 +94,9 @@ configs:
           range: [1, 10]
           default: 3
         strictly-match-label: bool
-        location-labels: # need detail information
-          type: list
-          value: ["zone", "rack"]
+        #location-labels: # need detail information
+        #  type: list
+        #  value: ["zone", "rack"]
         enable-placement-rules: bool # not in doc or example
       pd-server:
         use-region-storage: bool
