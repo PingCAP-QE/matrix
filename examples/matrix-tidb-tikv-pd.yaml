@@ -287,7 +287,6 @@ configs:
             range: [31, 50]
             default: 36
       pessimistic-txn:
-        enabled: bool # default: true
         wait-for-lock-timeout:
           type: time
           range: [500ms, 2s]
