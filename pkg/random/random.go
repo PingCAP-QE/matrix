@@ -17,11 +17,13 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/c2h5oh/datasize"
+
 	"chaos-mesh/matrix/pkg/node/data"
 	"chaos-mesh/matrix/pkg/utils"
-
-	"github.com/c2h5oh/datasize"
 )
+
+const selectRangeBoundaryProb = 0.05
 
 func Seed(seed int64) {
 	rand.Seed(seed)
@@ -35,9 +37,26 @@ func randUIntN(ui uint) uint {
 	}
 }
 
+// return true with a probability of `prob`
+func randProb(prob float64) bool {
+	if prob < 0 {
+		return false
+	} else if prob >= 1 {
+		return true
+	} else {
+		return prob > rand.Float64()
+	}
+}
+
+func randAny(values ...interface{}) interface{} {
+	return values[randUIntN(uint(len(values)))]
+}
+
 func RandInt(start int, end int) int {
 	if start == end {
 		return start
+	} else if randProb(selectRangeBoundaryProb) {
+		return randAny(start, end).(int)
 	} else if start < end {
 		return int(randUIntN(uint(end-start))) + start
 	} else {
@@ -48,6 +67,8 @@ func RandInt(start int, end int) int {
 func RandFloat(start float64, end float64) float64 {
 	if start == end {
 		return start
+	} else if randProb(selectRangeBoundaryProb) {
+		return randAny(start, end).(float64)
 	} else if start < end {
 		return rand.Float64()*(start-end) + end
 	} else {
@@ -79,6 +100,10 @@ func sizeUnit(size datasize.ByteSize) datasize.ByteSize {
 }
 
 func RandSize(start datasize.ByteSize, end datasize.ByteSize) datasize.ByteSize {
+	if randProb(selectRangeBoundaryProb) {
+		return randAny(start, end).(datasize.ByteSize)
+	}
+
 	var unit uint64
 	if start == 0 {
 		unit = uint64(sizeUnit(end))
@@ -92,6 +117,10 @@ func RandSize(start datasize.ByteSize, end datasize.ByteSize) datasize.ByteSize 
 }
 
 func RandTime(start data.Time, end data.Time) data.Time {
+	if randProb(selectRangeBoundaryProb) {
+		return randAny(start, end).(data.Time)
+	}
+
 	startInt, endInt := start.Nanoseconds(), end.Nanoseconds()
 
 	var unit int64 = 1
