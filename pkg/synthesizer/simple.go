@@ -15,6 +15,7 @@ package synthesizer
 
 import (
 	"fmt"
+	"sort"
 
 	"chaos-mesh/matrix/pkg/node/data"
 	"chaos-mesh/matrix/pkg/random"
@@ -46,8 +47,9 @@ func SimpleRecGen(hollow interface{}) interface{} {
 		}
 	case data.HollowMap:
 		res := make(map[string]interface{})
-		for k, v := range hollow.(data.HollowMap).Map {
-			res[k] = SimpleRecGen(v)
+		for _, k := range sortedMapKey(hollow.(data.HollowMap).Map) {
+
+			res[k] = SimpleRecGen(hollow.(data.HollowMap).Map[k])
 		}
 		return res
 	case data.HollowList:
@@ -61,4 +63,13 @@ func SimpleRecGen(hollow interface{}) interface{} {
 	default:
 		return fmt.Sprintf("%s", hollow)
 	}
+}
+
+func sortedMapKey(rawMap map[string]interface{}) []string {
+	var keys []string
+	for s, _ := range rawMap {
+		keys = append(keys, s)
+	}
+	sort.Strings(keys)
+	return keys
 }
