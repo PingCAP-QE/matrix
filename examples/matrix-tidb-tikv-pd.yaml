@@ -243,7 +243,7 @@ configs:
               default: 1KB
             blob-file-compression:
               type: choice
-              value: ["no", "snappy", "zlib", "bzip2", "lz4", "lz4hc", "zstd"]
+              value: ["no", "snappy", "zlib", "bz2", "lz4", "lz4hc", "zstd"]
               default: "lz4"
             blob-cache-size:
               type: size
