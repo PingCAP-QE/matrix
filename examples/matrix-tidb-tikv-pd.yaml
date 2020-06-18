@@ -309,7 +309,7 @@ configs:
       oom-action: ["log", "cancel"]
       lease:
         type: time
-        range: [10s, 60s]
+        range: [0s, 0s]
       performance:
         max-memory:
           type: int
