@@ -2,6 +2,7 @@ GOARCH := $(if $(GOARCH),$(GOARCH),amd64)
 GO=GO15VENDOREXPERIMENT="1" CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go
 GOTEST=GO15VENDOREXPERIMENT="1" CGO_ENABLED=1 GO111MODULE=on go test # go race detector requires cgo
 VERSION   := $(if $(VERSION),$(VERSION),latest)
+IMAGE := $(if $(IMAGE),$(IMAGE),pingcap/matrix)
 
 GOBUILD=$(GO) build
 
@@ -29,6 +30,9 @@ tidy:
 	@echo "go mod tidy"
 	GO111MODULE=on go mod tidy
 	@git diff --exit-code -- go.mod
+
+docker-build:
+	docker build -t $(IMAGE):$(VERSION) .
 
 $(GOBIN)/goimports:
 	$(GO) get golang.org/x/tools/cmd/goimports@v0.0.0-20200309202150-20ab64c0d93f
