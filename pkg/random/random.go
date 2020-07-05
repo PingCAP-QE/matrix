@@ -80,6 +80,25 @@ func RandChoose(brs []interface{}) interface{} {
 	return brs[randUIntN(uint(len(brs)))]
 }
 
+func RandChooseN(brs []interface{}, n int) []interface{} {
+	if n > len(brs) {
+		panic(fmt.Sprintf("`RandChooseN` n out of bound: %d, %v", n, brs))
+	}
+	var idx, selectedIdx []int
+	for i := 0; i < len(brs); i++ {
+		idx = append(idx, i)
+	}
+	rand.Shuffle(len(idx), func(i, j int) { idx[i], idx[j] = idx[j], idx[i] })
+	for i := 0; i < n; i++ {
+		selectedIdx = append(selectedIdx, idx[i])
+	}
+	results := make([]interface{}, n)
+	for i, idx := range selectedIdx {
+		results[i] = brs[idx]
+	}
+	return results
+}
+
 func sizeUnit(size datasize.ByteSize) datasize.ByteSize {
 	switch {
 	case size >= datasize.EB:

@@ -110,6 +110,9 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 
 func parseChoice(rawList []interface{}) (interface{}, error) {
 	var hollowChoice data.HollowChoice
+	if len(rawList) == 0 {
+		return nil, errors.New("no available option for choice")
+	}
 	hollowChoice.List = make([]interface{}, len(rawList))
 	for i, k := range rawList {
 		hollowBranch, err := parseTree(k)
@@ -306,6 +309,30 @@ func parseHollowChoice(raw map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("type `choice` does not contain field `value`")
 	}
 }
+
+func parseHollowChoiceN(raw map[string]interface{}) (interface{}, error) {
+	hollowChoice, err := parseHollowChoice(raw)
+	if err != nil {
+		return nil, err
+	}
+	hollowChoiceN := data.HollowChoiceN{HollowChoice: hollowChoice.(data.HollowChoice)}
+	if n, ok := raw["n"]; ok {
+		if intN, ok := n.(int); ok {
+			hollowChoiceN.N = intN
+		} else {
+			return nil, errors.New(fmt.Sprintf("`n` of choice_n is not of type int: %v", n))
+		}
+	}
+	if sep, ok := raw["sep"]; ok {
+		if strSep, ok := sep.(string); ok {
+			hollowChoiceN.Sep = strSep
+		} else {
+			return nil, errors.New(fmt.Sprintf("`sep` of choice_n is not of type string: %v", sep))
+		}
+	}
+	return hollowChoiceN, nil
+}
+
 func parseHollowMap(raw map[string]interface{}) (interface{}, error) {
 	if rawList, ok := raw["value"]; ok {
 		if rawMap, ok := rawList.(map[string]interface{}); ok {
@@ -354,13 +381,14 @@ func initValueParserMap() {
 		data.TypeUint: func(_ map[string]interface{}) (interface{}, error) {
 			return nil, errors.New("type `uint` is only used for simple type syntax")
 		},
-		data.TypeInt:    parseHollowInt,
-		data.TypeFloat:  parseHollowFloat,
-		data.TypeList:   parseHollowList,
-		data.TypeChoice: parseHollowChoice,
-		data.TypeMap:    parseHollowMap,
-		data.TypeStruct: parseHollowMap,
-		data.TypeTime:   parseHollowTime,
-		data.TypeSize:   parseHollowSize,
+		data.TypeInt:     parseHollowInt,
+		data.TypeFloat:   parseHollowFloat,
+		data.TypeList:    parseHollowList,
+		data.TypeChoice:  parseHollowChoice,
+		data.TypeMap:     parseHollowMap,
+		data.TypeStruct:  parseHollowMap,
+		data.TypeTime:    parseHollowTime,
+		data.TypeSize:    parseHollowSize,
+		data.TypeChoiceN: parseHollowChoiceN,
 	}
 }

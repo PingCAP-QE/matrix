@@ -54,6 +54,11 @@ type HollowChoice struct {
 	List      []interface{}
 	Condition *HollowCondition
 }
+type HollowChoiceN struct {
+	HollowChoice
+	N   int
+	Sep string
+}
 type HollowList struct {
 	List      []interface{}
 	Condition *HollowCondition
