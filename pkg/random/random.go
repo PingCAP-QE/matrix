@@ -133,7 +133,7 @@ func RandTime(start data.Time, end data.Time) data.Time {
 	if startInt <= int64(utils.MaxInt) && endInt <= int64(utils.MaxInt) {
 		return data.NewTime(int64(RandInt(int(startInt), int(endInt))) * unit)
 	} else {
-		panic(fmt.Sprintf("time range too wide: %s - %s", start, end))
+		panic(fmt.Sprintf("time range too wide: %v - %v", start, end))
 	}
 
 }

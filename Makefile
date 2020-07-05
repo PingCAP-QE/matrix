@@ -36,3 +36,6 @@ docker-build:
 
 $(GOBIN)/goimports:
 	$(GO) get golang.org/x/tools/cmd/goimports@v0.0.0-20200309202150-20ab64c0d93f
+
+test:
+	$(GOTEST) $$($(PACKAGE_LIST))

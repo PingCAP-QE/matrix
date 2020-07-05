@@ -33,40 +33,46 @@ func parseTree(rawValue interface{}) (interface{}, error) {
 		return parseMap(rawValue.(map[string]interface{}))
 	case []interface{}:
 		return parseChoice(rawValue.([]interface{}))
-	case string:
-		return parseString(rawValue.(string))
-	case float64:
-		return parseFloat(rawValue.(float64)), nil
-	case bool:
-		b := rawValue.(bool)
-		return data.HollowBool{Value: &b}, nil
 	default:
-		log.L().Warn(fmt.Sprintf("%s not handled, return HollowInt", rawValue))
+		return parseLiteral(rawValue)
+	}
+}
+
+func parseLiteral(rawLiteral interface{}) (interface{}, error) {
+	switch rawLiteral.(type) {
+	case float64:
+		return parseFloat(rawLiteral.(float64)), nil
+	case bool:
+		b := rawLiteral.(bool)
+		return data.HollowBool{Value: &b}, nil
+	case string:
+		return parseString(rawLiteral.(string))
+	default:
+		log.L().Warn(fmt.Sprintf("%s not handled, return HollowInt", rawLiteral))
 		return data.HollowInt{RangeStart: utils.MinInt, RangeEnd: utils.MaxInt}, nil
 	}
 }
 
-func parseMap(rawMap map[string]interface{}) (interface{}, error) {
-	var err error
-	if _, ok := rawMap["type"]; ok {
-		var hollowValue interface{}
-		var rawCondition interface{}
-
-		if rawCondition, ok = rawMap["when"]; ok {
+func parseValueMap(rawMap map[string]interface{}) (interface{}, error) {
+	valueType, ok := rawMap["type"]
+	if !ok {
+		return nil, errors.New("no `type` field")
+	}
+	stringValueType, ok := valueType.(string)
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("`type` of %v is not of type string", rawMap))
+	}
+	if valueParserMap == nil {
+		initValueParserMap()
+	}
+	valueParser, ok := valueParserMap[stringValueType]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("no parser for type \"%s\"", stringValueType))
+	}
+	hollowValue, err := valueParser(rawMap)
+	if err == nil {
+		if rawCondition, ok := rawMap["when"]; ok {
 			delete(rawMap, "when")
-		}
-
-		if _, ok = rawMap["default"]; ok {
-			// todo: store default value
-			delete(rawMap, "default")
-		}
-
-		hollowValue, err = parseHollowValue(rawMap)
-		if err != nil {
-			return nil, err
-		}
-
-		if rawCondition != nil {
 			var hollowCondition *data.HollowCondition
 			hollowCondition, err = parseCondition(rawCondition)
 			if err != nil {
@@ -75,6 +81,18 @@ func parseMap(rawMap map[string]interface{}) (interface{}, error) {
 			hollowValue.(data.HollowInterface).SetCondition(hollowCondition)
 		}
 
+		if _, ok = rawMap["default"]; ok {
+			// todo: store default value
+			delete(rawMap, "default")
+		}
+	}
+	return hollowValue, err
+}
+
+func parseMap(rawMap map[string]interface{}) (interface{}, error) {
+	var err error
+	hollowValue, err := parseValueMap(rawMap)
+	if err == nil {
 		return hollowValue, err
 	}
 	var hollowMap data.HollowMap
@@ -113,24 +131,19 @@ func parseCondition(rawCond interface{}) (*data.HollowCondition, error) {
 	return nil, nil
 }
 
+func parseDefault(rawString string) (interface{}, error) {
+	if hollow, ok := data.DefaultValue[rawString]; ok {
+		return hollow, nil
+	}
+	return nil, errors.New(fmt.Sprintf("not default value for %s", rawString))
+}
+
 // parseString convert string literals to corresponding values, default value will be handled here
 func parseString(rawString string) (interface{}, error) {
-	switch rawString {
-	case data.TypeBool:
-		return data.HollowBool{}, nil
-	case data.TypeInt:
-		return data.HollowInt{RangeStart: utils.MinInt, RangeEnd: utils.MaxInt}, nil
-	case data.TypeUint:
-		return data.HollowInt{RangeStart: 0, RangeEnd: utils.MaxInt}, nil
-	case data.TypeFloat:
-		return data.HollowFloat{RangeStart: 0, RangeEnd: 1}, nil
-	case data.TypeString:
-		return data.HollowString{Value: ""}, nil
-	case data.TypeTime:
-		return data.HollowTime{}, nil
-	case data.TypeSize:
-		return data.HollowSize{}, nil
-	default:
+	defaultValue, err := parseDefault(rawString)
+	if err == nil {
+		return defaultValue, nil
+	} else {
 		return data.HollowString{Value: rawString}, nil
 	}
 }
@@ -143,36 +156,6 @@ func parseFloat(rawFloat float64) interface{} {
 	} else {
 		return data.HollowFloat{RangeStart: rawFloat, RangeEnd: rawFloat}
 	}
-}
-
-func parseHollowValue(rawHollow map[string]interface{}) (interface{}, error) {
-	switch rawHollow["type"] {
-	case data.TypeBool:
-		return data.HollowBool{}, nil
-	case data.TypeUint:
-		return nil, errors.New("type `uint` is only used for simple type syntax")
-	case data.TypeInt:
-		return parseHollowInt(rawHollow)
-	case data.TypeFloat:
-		return parseHollowFloat(rawHollow)
-	case data.TypeString:
-		var s string
-		if rawString, ok := rawHollow["value"]; ok {
-			s = rawString.(string)
-		}
-		return data.HollowString{Value: s}, nil
-	case data.TypeList:
-		return parseHollowList(rawHollow)
-	case data.TypeChoice:
-		return parseHollowChoice(rawHollow)
-	case data.TypeMap, data.TypeStruct:
-		return parseHollowMap(rawHollow)
-	case data.TypeTime:
-		return parseHollowTime(rawHollow)
-	case data.TypeSize:
-		return parseHollowSize(rawHollow)
-	}
-	return nil, errors.New(fmt.Sprintf("parseHollowValue for type %s not implemented", rawHollow["type"]))
 }
 
 func parseHollowInt(raw map[string]interface{}) (interface{}, error) {
@@ -341,5 +324,43 @@ func parseHollowMap(raw map[string]interface{}) (interface{}, error) {
 		}
 	} else {
 		return nil, errors.New("type `map` does not contain field `value`")
+	}
+}
+
+var valueParserMap map[string]func(map[string]interface{}) (interface{}, error)
+
+func initValueParserMap() {
+	valueParserMap = map[string]func(map[string]interface{}) (interface{}, error){
+		data.TypeBool: func(rawBool map[string]interface{}) (interface{}, error) {
+			if rawBoolValue, ok := rawBool["value"]; ok {
+				if b, ok := rawBoolValue.(bool); ok {
+					return data.HollowBool{Value: &b}, nil
+				} else {
+					return nil, errors.New("`value` field of bool is not of type bool")
+				}
+			}
+			return data.HollowBool{}, nil
+		},
+		data.TypeString: func(rawBool map[string]interface{}) (interface{}, error) {
+			if rawBoolValue, ok := rawBool["value"]; ok {
+				if s, ok := rawBoolValue.(string); ok {
+					return data.HollowString{Value: s}, nil
+				} else {
+					return nil, errors.New("`value` field of string is not of type string")
+				}
+			}
+			return data.HollowBool{}, nil
+		},
+		data.TypeUint: func(_ map[string]interface{}) (interface{}, error) {
+			return nil, errors.New("type `uint` is only used for simple type syntax")
+		},
+		data.TypeInt:    parseHollowInt,
+		data.TypeFloat:  parseHollowFloat,
+		data.TypeList:   parseHollowList,
+		data.TypeChoice: parseHollowChoice,
+		data.TypeMap:    parseHollowMap,
+		data.TypeStruct: parseHollowMap,
+		data.TypeTime:   parseHollowTime,
+		data.TypeSize:   parseHollowSize,
 	}
 }
