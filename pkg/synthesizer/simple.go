@@ -15,6 +15,7 @@ package synthesizer
 
 import (
 	"fmt"
+	"github.com/pingcap/log"
 	"sort"
 	"strings"
 
@@ -85,6 +86,7 @@ func SimpleRecGen(hollow interface{}) interface{} {
 			return results
 		}
 	default:
+		log.L().Warn(fmt.Sprintf("unhandled value: %v", hollow))
 		return fmt.Sprintf("%s", hollow)
 	}
 }
