@@ -4,8 +4,10 @@ Matrix is a config fuzzer, i.e. generate a set of configurations for a program t
 
 ## Quickstart
 ```bash
-make
-bin/matrix -c examples/matrix-tidb-tikv-pd.yaml # this will generate three TiDB-related configs `tidb.yaml`, `tikv.yaml` and `pd.yaml` in current folder
+$ make
+$ bin/matrix -c examples/matrix-tidb-tikv-pd.yaml
+# this will generate three TiDB-related configs in current folder
+# including `tidb.yaml`, `tikv.yaml`, `pd.yaml`, `mysql-system-vars.sql` and `tidb-system-vars.sql`
 ```
 
 Output folder can be configured with `-d <output folder>`
@@ -22,72 +24,30 @@ Usage of ./bin/matrix:
         seed of rand (default UTC nanoseconds of now)
 ```
 
-## Type of configs
-- Domain specific config file in specific format;
-   - [x] toml
-   - [ ] yaml
-- [ ] Command line arguments;
-- [ ] Command (Query in Database) need to be run.
+Matrix reads one config file contains generation rules,
+generate values based on those rules,
+then dump values with serializer.
 
-Note 3. could also be used for dynamic configuring (change config during runtime),
-which will not be considered now.
-
-## DSL
-
+## Matrix Configuration
 Matrix use DSL in yaml format to describe the configurations need to be fuzzed.
+See [DSL](./docs/DSL.md) for detailed information.
 
-### Configs of Matrix
-The config file of Matrix tool is a yaml file, formatted as followed:
-```yaml
-config:
-  - <config_template>
-```
+## Type of configs Matrix support to generate
+With different serializer, Matrix supports to generate various kinds of configurations,
+refer to [serializer](./docs/serializer.md) for detailed usage.
 
-Each `config_template` is a set of configs that will be generated as one entity (i.e. file).
-
-| Field | Description | Sample Value |
-|:------|:------------------|:--------------|
-| **tag** | Tag for this config |
-| **serializer** | Serializer used to dump this config | `yaml` / `toml` / `...` |
-| **target** | Path of dumped config |
-| **value** | Specification of this config |
-
-```
-config := { key: value, ... }
-
-value := <literal_type> # random generated value with no constraints, e.g. [u]int, bool, string
-       | <literal> # literal value of int, float, string
-       | <list_of_choices>
-       | <full_value_decl>
-       | <struct_map> # struct_map as {...} is a shortcut of {type: sturct, value: ...}
-
-list_of_choices := []
-                 | [<value>] :: <list_of_choices>
-
-full_value_decl := {type: <type>[, when: <condition>][, arguments]}
-```
-
-## Type of config values
-1. Basic types
-   1. string
-   2. bool
-   3. int
-   
-      3.1. uint is an alias of int with minimal value 0
-   4. float
-   5. time (`s`/`m`/`h`)
-   6. size (`B`/`KB`/`MB`/`...`)
-2. Struct
-
-See `examples/matrix-tidb.yaml` for an example of TiDB.
+Currently supported format:
+- toml
+- yaml
+- line-based generation
 
 ## TODO
 ### Parser
 - [ ] Better unit conversion
 ### Serializer
 - [x] toml serializer
-- [ ] yaml serializer
-- [ ] SQL serializer
+- [x] yaml serializer
+- [x] SQL serializer
 - [ ] Command line argument serializer
 ### Generator
 - [ ] List generation
