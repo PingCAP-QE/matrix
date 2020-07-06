@@ -13,16 +13,31 @@
 
 package data
 
+import "chaos-mesh/matrix/pkg/utils"
+
 const (
-	TypeBool   = "bool"
-	TypeInt    = "int"
-	TypeUint   = "uint" // uint is a shortcut for int starts from zero rather than a representation of uint type
-	TypeFloat  = "float"
-	TypeString = "string"
-	TypeSize   = "size"
-	TypeTime   = "time"
-	TypeList   = "list"
-	TypeChoice = "choice"
-	TypeMap    = "map"
-	TypeStruct = "struct" // struct is an alias of map
+	TypeBool    = "bool"
+	TypeInt     = "int"
+	TypeUint    = "uint" // uint is a shortcut for int starts from zero rather than a representation of uint type
+	TypeFloat   = "float"
+	TypeString  = "string"
+	TypeSize    = "size"
+	TypeTime    = "time"
+	TypeList    = "list"
+	TypeChoice  = "choice"
+	TypeChoiceN = "choice_n" // randomly choose n elements
+	TypeMap     = "map"
+	TypeStruct  = "struct" // struct is an alias of map
 )
+
+var AllTypes = []string{TypeBool, TypeInt, TypeUint, TypeFloat, TypeString, TypeSize, TypeTime, TypeList, TypeChoice, TypeMap, TypeStruct, TypeChoiceN}
+
+var DefaultValue = map[string]interface{}{
+	TypeBool:   HollowBool{},
+	TypeInt:    HollowInt{RangeStart: utils.MinInt, RangeEnd: utils.MaxInt},
+	TypeUint:   HollowInt{RangeStart: 0, RangeEnd: utils.MaxInt},
+	TypeFloat:  HollowFloat{RangeStart: 0, RangeEnd: 1},
+	TypeString: HollowString{Value: ""},
+	TypeSize:   HollowSize{},
+	TypeTime:   HollowTime{},
+}

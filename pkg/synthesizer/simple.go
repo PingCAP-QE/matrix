@@ -15,7 +15,9 @@ package synthesizer
 
 import (
 	"fmt"
+	"github.com/pingcap/log"
 	"sort"
+	"strings"
 
 	"chaos-mesh/matrix/pkg/node/data"
 	"chaos-mesh/matrix/pkg/random"
@@ -60,7 +62,31 @@ func SimpleRecGen(hollow interface{}) interface{} {
 		return res
 	case data.HollowChoice:
 		return SimpleRecGen(random.RandChoose(hollow.(data.HollowChoice).List))
+	case data.HollowChoiceN:
+		choiceN := hollow.(data.HollowChoiceN)
+		n := choiceN.N
+		if n == 0 {
+			n = random.RandInt(1, len(choiceN.List))
+		}
+		results := make([]interface{}, n)
+		strResults := make([]string, n)
+		tryJoin := true
+		for i, hollow := range random.RandChooseN(choiceN.List, n) {
+			v := SimpleRecGen(hollow)
+			results[i] = v
+			if tryJoin {
+				s, isStr := v.(string)
+				tryJoin = tryJoin && isStr
+				strResults[i] = s
+			}
+		}
+		if tryJoin {
+			return strings.Join(strResults, choiceN.Sep)
+		} else {
+			return results
+		}
 	default:
+		log.L().Warn(fmt.Sprintf("unhandled value: %v", hollow))
 		return fmt.Sprintf("%s", hollow)
 	}
 }
