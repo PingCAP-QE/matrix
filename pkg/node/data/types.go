@@ -13,7 +13,7 @@
 
 package data
 
-import "chaos-mesh/matrix/pkg/utils"
+import "github.com/chaos-mesh/matrix/pkg/utils"
 
 const (
 	TypeBool    = "bool"

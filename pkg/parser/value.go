@@ -21,8 +21,8 @@ import (
 
 	"github.com/pingcap/log"
 
-	"chaos-mesh/matrix/pkg/node/data"
-	"chaos-mesh/matrix/pkg/utils"
+	"github.com/chaos-mesh/matrix/pkg/node/data"
+	"github.com/chaos-mesh/matrix/pkg/utils"
 )
 
 const ExprNotSupportedMessage = "expr not supported"

@@ -16,9 +16,9 @@ package parser
 import (
 	"errors"
 
-	"chaos-mesh/matrix/pkg/context"
-	"chaos-mesh/matrix/pkg/node"
-	"chaos-mesh/matrix/pkg/serializer"
+	"github.com/chaos-mesh/matrix/pkg/context"
+	"github.com/chaos-mesh/matrix/pkg/node"
+	"github.com/chaos-mesh/matrix/pkg/serializer"
 )
 
 func ParseFile(rawData node.MatrixConfigFile) (*context.MatrixContext, error) {
