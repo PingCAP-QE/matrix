@@ -1,4 +1,4 @@
-module chaos-mesh/matrix
+module github.com/chaos-mesh/matrix
 
 go 1.14
 

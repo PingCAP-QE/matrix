@@ -19,8 +19,8 @@ import (
 
 	"github.com/c2h5oh/datasize"
 
-	"chaos-mesh/matrix/pkg/node/data"
-	"chaos-mesh/matrix/pkg/utils"
+	"github.com/chaos-mesh/matrix/pkg/node/data"
+	"github.com/chaos-mesh/matrix/pkg/utils"
 )
 
 const selectRangeBoundaryProb = 0.05

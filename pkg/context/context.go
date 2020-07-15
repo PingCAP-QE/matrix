@@ -19,10 +19,10 @@ import (
 	"path"
 	"sort"
 
-	"chaos-mesh/matrix/pkg/node"
-	"chaos-mesh/matrix/pkg/random"
-	"chaos-mesh/matrix/pkg/serializer"
-	"chaos-mesh/matrix/pkg/synthesizer"
+	"github.com/chaos-mesh/matrix/pkg/node"
+	"github.com/chaos-mesh/matrix/pkg/random"
+	"github.com/chaos-mesh/matrix/pkg/serializer"
+	"github.com/chaos-mesh/matrix/pkg/synthesizer"
 )
 
 type MatrixContext struct {

@@ -19,7 +19,7 @@ import (
 	"os"
 	"strings"
 
-	"chaos-mesh/matrix/pkg/utils"
+	"github.com/chaos-mesh/matrix/pkg/utils"
 )
 
 type StatementSerializer struct{}

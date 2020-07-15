@@ -13,7 +13,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 PACKAGE_LIST := go list ./... | grep -vE "matrix/test"
-PACKAGE_DIRECTORIES := $(PACKAGE_LIST) | sed 's|chaos-mesh/matrix/||'
+PACKAGE_DIRECTORIES := $(PACKAGE_LIST) | sed 's|github.com/chaos-mesh/matrix/||'
 
 default: all
 
@@ -21,7 +21,7 @@ all:
 	$(GOBUILD) $(GOMOD) -o bin/matrix src/main.go
 
 groupimports: $(GOBIN)/goimports
-	$< -w -l -local chaos-mesh/matrix $$($(PACKAGE_DIRECTORIES))
+	$< -w -l -local github.com/chaos-mesh/matrix $$($(PACKAGE_DIRECTORIES))
 
 fmt: groupimports
 	go fmt ./...

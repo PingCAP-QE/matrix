@@ -19,7 +19,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"chaos-mesh/matrix/api"
+	"github.com/chaos-mesh/matrix/api"
 
 	"github.com/pingcap/log"
 )

@@ -22,9 +22,9 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/pingcap/log"
 
-	"chaos-mesh/matrix/pkg/context"
-	"chaos-mesh/matrix/pkg/node"
-	"chaos-mesh/matrix/pkg/parser"
+	"github.com/chaos-mesh/matrix/pkg/context"
+	"github.com/chaos-mesh/matrix/pkg/node"
+	"github.com/chaos-mesh/matrix/pkg/parser"
 )
 
 func Gen(matrixConfig, output string, seed int64) error {

@@ -14,7 +14,7 @@
 package node
 
 import (
-	"chaos-mesh/matrix/pkg/serializer"
+	"github.com/chaos-mesh/matrix/pkg/serializer"
 )
 
 type AbstractConfig struct {

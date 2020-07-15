@@ -16,7 +16,7 @@ package parser
 import (
 	"testing"
 
-	"chaos-mesh/matrix/pkg/node/data"
+	"github.com/chaos-mesh/matrix/pkg/node/data"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
