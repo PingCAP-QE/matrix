@@ -16,17 +16,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
-	"time"
 
-	"chaos-mesh/matrix/pkg/context"
-	"chaos-mesh/matrix/pkg/node"
-	"chaos-mesh/matrix/pkg/parser"
+	"chaos-mesh/matrix/api"
 
-	"github.com/ghodss/yaml"
 	"github.com/pingcap/log"
 )
 
@@ -55,34 +49,9 @@ func main() {
 	} else {
 		log.L().Info(fmt.Sprintf("dumpping to %s", output))
 	}
-	if seed == 0 {
-		seed = time.Now().UnixNano()
-	}
-	log.L().Info(fmt.Sprintf("SEED: %d", seed))
 
-	cont, err := ioutil.ReadFile(conf)
+	err := api.Gen(conf, output, seed)
 	if err != nil {
 		panic(err)
-	}
-
-	var body node.MatrixConfigFile
-	err = yaml.Unmarshal(cont, &body)
-	if err != nil {
-		panic(err)
-	}
-
-	var ctx *context.MatrixContext
-	ctx, err = parser.ParseFile(body)
-
-	if err != nil {
-		panic(fmt.Sprintf("file not valid: %s", err.Error()))
-	}
-
-	values := ctx.Gen(seed)
-	for config, concrete := range values.Configs {
-		err = config.Serializer.Dump(concrete, path.Join(output, config.Target))
-		if err != nil {
-			fmt.Printf("Error %s when dumping %s", err.Error(), concrete)
-		}
 	}
 }
