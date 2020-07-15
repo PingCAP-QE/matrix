@@ -15,9 +15,10 @@ package synthesizer
 
 import (
 	"fmt"
-	"github.com/pingcap/log"
 	"sort"
 	"strings"
+
+	"github.com/pingcap/log"
 
 	"chaos-mesh/matrix/pkg/node/data"
 	"chaos-mesh/matrix/pkg/random"
