@@ -1,4 +1,6 @@
 # Matrix
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fchaos-mesh%2Fmatrix.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fchaos-mesh%2Fmatrix?ref=badge_shield)
+
 
 Matrix is a config fuzzer, i.e. generate a set of configurations for a program that need to be fuzzed.
 
@@ -57,3 +59,7 @@ Currently supported format:
 ### Random
 - [x] Random generate value
 - [x] Specific random seed to have same output with same seed, to support continuous testing
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fchaos-mesh%2Fmatrix.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fchaos-mesh%2Fmatrix?ref=badge_large)
